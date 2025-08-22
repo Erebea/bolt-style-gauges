@@ -3,6 +3,11 @@ FFXIV Inspired Combat Style Gauges for RS3, made specifically for Bolt: https://
 
 Very WIP and messy, most code I've written in years
 
+Previews:
+
+![This is Necromancy](/assets/preview-necromancy.png)
+![This is Magic](/assets/preview-magic.png)
+
 # todo
 Better icons
 
