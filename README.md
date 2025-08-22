@@ -16,4 +16,8 @@ Soulfire and possibly other bleed reset procs
 
 FSOA tracking
 
+95/99 prayer indicator as a treat
+
+overload indicator cause why not
+
 Ranged gauge, I don't use ranged lmao
