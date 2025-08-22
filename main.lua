@@ -11,7 +11,7 @@ local modules = {
 
 -- interface scaling value
 scale = 1
--- modern or legacy interface
+-- modern or legacy interface, I haven't made legacy assets yet
 intstyle = "modern"
 -- the width of the gauge
 gw = 260 * scale
@@ -448,13 +448,13 @@ bolt.onswapbuffers (function (event)
     ssbar:drawtoscreen(0, 0, 150, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(ssperc * scale), 2 * scale)
 
     ldi:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
-    if buffs.livingdeath.active then
-      ldbg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
-    end
-    lda:drawtoscreen(0, 0 + math.floor((100 - ( 100 * ldperc))), 100, math.floor(100 * ldperc), gx + math.floor(gw * 0.85), gy - (3 * scale) + math.floor((50 - (50 * ldperc) * scale)), 50 * scale, math.floor((50 *ldperc) * scale))
-    ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor(ldperc * scale), 2 * scale)
+    --if buffs.livingdeath.active then
+      --ldbg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+    --end
+    lda:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+    ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor((150 * ldperc) * scale), 2 * scale)
 
-    souls:drawtoscreen(0, 0, 160, 32, gx + math.floor(gw * 0.2) - (2 * scale), gb - ( 20 * scale), 16 * scale * 5, 16 * scale)
+    souls:drawtoscreen(0, 0, 160, 32, gx + math.floor(gw * 0.2) - (2 * scale), gb - ( 10 * scale), 16 * scale * 5, 16 * scale)
 
     bloatbg:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
     bloatbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (14 * scale), math.floor(bloatbarsize * scale), 6 * scale)
