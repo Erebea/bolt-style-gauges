@@ -582,9 +582,9 @@ bolt.onswapbuffers (function (event)
 
     --fsoa:drawtoscreen(0, 0, 32, 32, gx + math.floor(gw * 0.585) - ( 20 * scale), gy - ( 5 * scale / 2), 15 * scale , 15 * scale)
     if buffs.temporalanomaly.active then
-      ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 15 * scale / 2), 25 * scale, 25 * scale)
+      ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
     elseif buffs.animatedead.active then
-      ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 15 * scale / 2), 25 * scale, 25 * scale)
+      ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
     end
     if buffs.conflagrate.active then
       conf:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.75), gy - ( 5 * scale / 2), 20 * scale, 20 * scale)
