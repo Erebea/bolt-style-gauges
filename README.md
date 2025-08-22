@@ -1,6 +1,8 @@
 # bolt-style-gauges
 FFXIV Inspired Combat Style Gauges for RS3, made specifically for Bolt: https://github.com/Adamcake/Bolt
 
+Also Inspired by the alt1 plugin: https://github.com/NadyaNayme/job-gauges
+
 Very WIP and messy, most code I've written in years
 
 Previews:
