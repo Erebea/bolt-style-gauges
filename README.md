@@ -1,5 +1,5 @@
 # bolt-style-gauges
-FFXIV Inspired Combat Style Gauges
+FFXIV Inspired Combat Style Gauges for RS3, made specifically for Bolt: https://github.com/Adamcake/Bolt
 
 # todo
 Better icons
