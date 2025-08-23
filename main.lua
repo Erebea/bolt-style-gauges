@@ -59,6 +59,10 @@ local buffs = {
     soulfire = {},
 }
 
+local models = {
+  temporalanomaly = { center = bolt.point(0, 200,0), boxsize = 500, boxthickness = 100},
+}
+
 local bloattimer = 0
 
 local checkframe = false
@@ -86,6 +90,22 @@ end
 local function rougheqrgba (r, g, b, a, tr, tg, tb, ta)
   return rougheqrgb(r, g, b, tr, tg, tb) and math.abs(a - (ta / 255.0)) <= rgbaleniency
 end
+
+local hilightability = function (rule)
+  print("please work")
+end
+
+local any3dobjectexists = false
+local any3dobjectfound = false
+local render3dlookup = {
+  [600] = function (event)
+    -- temporal anomaly
+    local anim = event:animated()
+    local x, y, z = event:vertexpoint(1):get()
+    if anim and x == -0 and y == 32 and z == -224 then return models.temporalanomaly end
+    return nil
+  end,
+}
 
 local rendericonlookup1godbookmatch = function (event)
   local x, y, z = event:modelvertexpoint(1, 1):get()
@@ -265,6 +285,28 @@ bolt.onrender2d(function (event)
   end
 end)
 
+bolt.onrender3d(function (event)
+  if not (checkframe or any3dobjectexists) then return end
+  local f = render3dlookup[event:vertexcount()]
+  if f ~= nil then
+    local model = f(event)
+    if model and model.dohighlight then
+      any3dobjectfound = true
+      if (bolt.time() % 600000) <= 480000 then
+        local m = model.center
+        if model.anim then
+          m = m:transform(event:vertexanimation(1))
+        end
+        drawbox(m:transform(event:modelmatrix()), event:viewmatrix(), event:projectionmatrix(), model.boxsize, model.boxthickness)
+      end
+      if checkframe then
+        model.foundoncheckframe = true
+        hilightability()
+      end
+    end
+  end
+end)
+
 bolt.onrendericon(function (event)
   if not checkframe then return end
   local modelcount = event:modelcount()
@@ -283,6 +325,9 @@ end)
 local startcheckframe = function (t)
   for _, buff in pairs(buffs) do
     buff.foundoncheckframe = false
+  end
+  for _, model in pairs(models) do
+    model.foundoncheckframe = false
   end
 end
 
@@ -310,6 +355,10 @@ bolt.onswapbuffers (function (event)
       checktime = t
     end
     startcheckframe(t)
+  end
+
+  if models.temporalanomaly then
+    print("TA PROCCED???????")
   end
 
   if buffs.livingdeath.active or buffs.sorrow.active then
