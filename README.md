@@ -36,8 +36,6 @@ FSOA tracking
 
 95/99 prayer indicator as a treat
 
-Find a way to make gauges not copy central interfaces
-
 overload indicator cause why not
 
 Ranged gauge, I don't use ranged lmao
