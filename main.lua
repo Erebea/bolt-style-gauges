@@ -5,10 +5,13 @@ local base64 = require("base64")
 
 local unitspertile = 512
 
+local ruleset = {}
+local rules = {}
 local modules = {
-    buffs = require("modules.buffs.buffs"),
+  chat = require("modules.chat.chat"),
+  buffs = require("modules.buffs.buffs"),
+  popup = require("modules.popup.popup"),
 }
-
 -- interface scaling value
 scale = 1
 -- modern or legacy interface, I haven't made legacy assets yet
@@ -30,6 +33,7 @@ gr = gx + gw
 
 local cbstyle = "none"
 local activespell = "no-spell"
+local hidegauge = false
 
 local buffs = {
     darkness = {},
@@ -61,7 +65,27 @@ local buffs = {
 
 local models = {
   temporalanomaly = { center = bolt.point(0, 200,0), boxsize = 500, boxthickness = 100},
+  dummy = { center = bolt.point(0, 200, 100), boxsize = 500, boxthickness = 100},
 }
+
+local elements = {
+  bank = {},
+  central = {},
+  lobby = {},
+}
+
+for _, model in pairs(models) do
+  model.dohighlight = false
+end
+
+local ref = ref 
+
+if ref then
+  if type == 'model' then
+    ref = models[ref]
+    if ref then ref.dohighlight = true end
+  end
+end
 
 local bloattimer = 0
 
@@ -91,18 +115,28 @@ local function rougheqrgba (r, g, b, a, tr, tg, tb, ta)
   return rougheqrgb(r, g, b, tr, tg, tb) and math.abs(a - (ta / 255.0)) <= rgbaleniency
 end
 
-local hilightability = function (rule)
-  print("please work")
-end
-
 local any3dobjectexists = false
 local any3dobjectfound = false
+
+local redpixel = bolt.createsurfacefromrgba(1, 1, "\xD0\x10\x10\xFF")
+local blackpixel = bolt.createsurfacefromrgba(1, 1, "\x00\x00\x00\xFF")
+
 local render3dlookup = {
   [600] = function (event)
     -- temporal anomaly
     local anim = event:animated()
     local x, y, z = event:vertexpoint(1):get()
     if anim and x == -0 and y == 32 and z == -224 then return models.temporalanomaly end
+    return nil
+  end,
+
+  [2658] = function (event)
+    -- combat dummy
+    local anim = event:animated()
+    local x, y, z = event:vertexpoint(1):get()
+    if anim and x == -83 and y == 217 and z == 83 then 
+      return models.dummy
+    end
     return nil
   end,
 }
@@ -187,6 +221,15 @@ local setbuffdetails = function (buff, isvalid, number, parensnumber)
   end
 end
 
+local setuidetails = function (element, exists, x, y)
+  if x then
+    element.x = x
+    element.y = y
+    element.active = true
+    element.foundoncheckframe = true
+  end
+end
+
 bolt.onrender2d(function (event)
   local t = bolt.time()
   if not (checkframe or docheckxpgain) then return end
@@ -209,21 +252,24 @@ bolt.onrender2d(function (event)
       local readbuff = function (buff, isbuff)
         setbuffdetails(buff, modules.buffs:tryreadbuffdetails(event, i + verticesperimage, pxleft, pxtop, isbuff))
       end
+      local readuielement = function (element, exists)
+        setuidetails(element, i + verticesperimage, pxleft, pxtop, exists)
+      end
 
       if aw == ah then
         if aw == 60 then
-            if event:texturecompare(ax, ay + 30, "\x21\x4d\x6c\xff\x25\x55\x74\xff\x28\x5f\x81\xff\x2c\x69\x8c\xff\x2f\x6e\x94\xff\x2d\x67\x90\xff\x27\x5a\x85\xff\x26\x52\x80\xff\x27\x55\x86\xff\x29\x5b\x8c\xff\x2b\x61\x93\xff\x2d\x67\x99\xff\x2f\x6d\x9f\xff\x32\x74\xa7\xff\x36\x7b\xad\xff\x39\x83\xb5\xff\x3a\x8a\xb9\xff\x3b\x9e\xc6\xff\x43\xd3\xe4\xff\x4e\xf3\xf3\xff\x48\xd5\xe4\xff\x41\xb1\xd3\xff\x44\xb2\xd5\xff\x46\xb7\xd8\xff\x47\xc3\xdd\xff\x58\xee\xef\xff\x55\xe1\xea\xff\x47\xc4\xde\xff\x48\xc4\xde\xff\x4d\xd2\xe4\xff\x5e\xf2\xf0\xff\x4f\xd6\xe5\xff\x47\xc2\xdd\xff\x46\xc2\xdc\xff\x56\xde\xe8\xff\x5e\xf3\xf1\xff\x46\xca\xde\xff\x3e\xae\xd1\xff\x3e\xa8\xcd\xff\x3d\xa7\xcc\xff\x45\xca\xde\xff\x4c\xf1\xf3\xff\x43\xd6\xe5\xff\x38\x9b\xc3\xff\x36\x7f\xb3\xff\x34\x79\xac\xff\x2f\x70\xa2\xff\x2c\x68\x9a\xff\x2a\x61\x93\xff\x28\x5a\x8b\xff\x27\x55\x85\xff\x26\x4f\x80\xff\x24\x4c\x7a\xff\x22\x4a\x76\xff\x20\x46\x70\xff\x1e\x41\x69\xff\x1d\x3e\x64\xff\x1c\x3d\x60\xff\x1c\x3e\x5e\xff\x1d\x3e\x5d\xff") then
+          if event:texturecompare(ax, ay + 30, "\x21\x4d\x6c\xff\x25\x55\x74\xff\x28\x5f\x81\xff\x2c\x69\x8c\xff\x2f\x6e\x94\xff\x2d\x67\x90\xff\x27\x5a\x85\xff\x26\x52\x80\xff\x27\x55\x86\xff\x29\x5b\x8c\xff\x2b\x61\x93\xff\x2d\x67\x99\xff\x2f\x6d\x9f\xff\x32\x74\xa7\xff\x36\x7b\xad\xff\x39\x83\xb5\xff\x3a\x8a\xb9\xff\x3b\x9e\xc6\xff\x43\xd3\xe4\xff\x4e\xf3\xf3\xff\x48\xd5\xe4\xff\x41\xb1\xd3\xff\x44\xb2\xd5\xff\x46\xb7\xd8\xff\x47\xc3\xdd\xff\x58\xee\xef\xff\x55\xe1\xea\xff\x47\xc4\xde\xff\x48\xc4\xde\xff\x4d\xd2\xe4\xff\x5e\xf2\xf0\xff\x4f\xd6\xe5\xff\x47\xc2\xdd\xff\x46\xc2\xdc\xff\x56\xde\xe8\xff\x5e\xf3\xf1\xff\x46\xca\xde\xff\x3e\xae\xd1\xff\x3e\xa8\xcd\xff\x3d\xa7\xcc\xff\x45\xca\xde\xff\x4c\xf1\xf3\xff\x43\xd6\xe5\xff\x38\x9b\xc3\xff\x36\x7f\xb3\xff\x34\x79\xac\xff\x2f\x70\xa2\xff\x2c\x68\x9a\xff\x2a\x61\x93\xff\x28\x5a\x8b\xff\x27\x55\x85\xff\x26\x4f\x80\xff\x24\x4c\x7a\xff\x22\x4a\x76\xff\x20\x46\x70\xff\x1e\x41\x69\xff\x1d\x3e\x64\xff\x1c\x3d\x60\xff\x1c\x3e\x5e\xff\x1d\x3e\x5d\xff") then
                     readbuff(buffs.sunshine, true)
-            elseif event:texturecompare(ax, ay + 30, "\x0e\x12\x2d\xff\x0e\x12\x2d\xff\x06\x15\x23\xff\x07\x12\x1a\xff\x07\x12\x1a\xff\x07\x12\x1a\xff\x06\x15\x23\xff\x0d\x21\x3d\xff\x0e\x2f\x4f\xff\x0e\x2f\x4f\xff\x22\x3e\x50\xff\x0d\x21\x3d\xff\x02\x10\x2d\xff\x02\x10\x2d\xff\x3a\x3c\x52\xff\xb8\x90\x4b\xff\x90\x8c\x69\xff\x8f\x63\x49\xff\x3a\x3c\x52\xff\x77\x4e\x3b\xff\xfb\xba\x7d\xff\xf7\xf2\x2b\xff\xef\xca\x43\xff\xf0\xec\x82\xff\xf7\xf6\xf1\xff\xfb\xfd\xfd\xff\xc7\x76\x5c\xff\x7a\x29\x0d\xff\x7a\x29\x0d\xff\x81\x42\x15\xff\x9e\x43\x16\xff\x9f\x5d\x1f\xff\x9f\x5d\x1f\xff\x95\x2b\x09\xff\x7a\x29\x0d\xff\x7a\x29\x0d\xff\xa4\x71\x57\xff\xce\xd4\xd4\xff\xeb\xe8\xea\xff\xfb\xfd\xfd\xff\xfb\xfd\xfd\xff\xea\xc8\xb2\xff\x60\x17\x08\xff\x2d\x05\x03\xff\x49\x0b\x05\xff\xac\x8c\x69\xff\xf9\xf8\xd8\xff\xf8\xf7\xbb\xff\xf0\xec\x82\xff\xf2\xe7\x60\xff\xf2\xe7\x60\xff\xef\xca\x43\xff\xf2\x9f\x3e\xff\x88\x51\x3a\xff\x1a\x20\x50\xff\x03\x20\x51\xff\x03\x21\x3e\xff\x1e\x31\x4a\xff\x18\x38\x6d\xff\x1a\x20\x50\xff") then
+          elseif event:texturecompare(ax, ay + 30, "\x0e\x12\x2d\xff\x0e\x12\x2d\xff\x06\x15\x23\xff\x07\x12\x1a\xff\x07\x12\x1a\xff\x07\x12\x1a\xff\x06\x15\x23\xff\x0d\x21\x3d\xff\x0e\x2f\x4f\xff\x0e\x2f\x4f\xff\x22\x3e\x50\xff\x0d\x21\x3d\xff\x02\x10\x2d\xff\x02\x10\x2d\xff\x3a\x3c\x52\xff\xb8\x90\x4b\xff\x90\x8c\x69\xff\x8f\x63\x49\xff\x3a\x3c\x52\xff\x77\x4e\x3b\xff\xfb\xba\x7d\xff\xf7\xf2\x2b\xff\xef\xca\x43\xff\xf0\xec\x82\xff\xf7\xf6\xf1\xff\xfb\xfd\xfd\xff\xc7\x76\x5c\xff\x7a\x29\x0d\xff\x7a\x29\x0d\xff\x81\x42\x15\xff\x9e\x43\x16\xff\x9f\x5d\x1f\xff\x9f\x5d\x1f\xff\x95\x2b\x09\xff\x7a\x29\x0d\xff\x7a\x29\x0d\xff\xa4\x71\x57\xff\xce\xd4\xd4\xff\xeb\xe8\xea\xff\xfb\xfd\xfd\xff\xfb\xfd\xfd\xff\xea\xc8\xb2\xff\x60\x17\x08\xff\x2d\x05\x03\xff\x49\x0b\x05\xff\xac\x8c\x69\xff\xf9\xf8\xd8\xff\xf8\xf7\xbb\xff\xf0\xec\x82\xff\xf2\xe7\x60\xff\xf2\xe7\x60\xff\xef\xca\x43\xff\xf2\x9f\x3e\xff\x88\x51\x3a\xff\x1a\x20\x50\xff\x03\x20\x51\xff\x03\x21\x3e\xff\x1e\x31\x4a\xff\x18\x38\x6d\xff\x1a\x20\x50\xff") then
                     readbuff(buffs.ruin, true)
-             elseif event:texturecompare(ax, ay + 20, "\x00\x00\x01\x2a\x00\x00\x01\x6e\x3e\x25\x41\xca\x75\x3d\x7e\xfe\x61\x35\x6e\xff\x4e\x2f\x5a\xff\x4e\x2f\x5a\xff\x4f\x31\x66\xff\x4c\x4c\x71\xff\x3d\x49\x8f\xff\x48\x57\xac\xff\x54\xbf\xf9\xff\xc9\xeb\xfc\xff\xfc\xfd\xfc\xff\xfc\xfd\xfc\xff\xe6\xf5\xf9\xff\xa0\xc9\xec\xff\xc9\xeb\xfc\xff\xe6\xf5\xf9\xff\xa0\xc9\xec\xff\x55\x70\xa7\xff\x17\x2e\x31\xff\x0b\x15\x40\xff\x2d\x27\x38\xff\x96\x6f\x6c\xff\xec\xca\xb7\xff\xec\xca\xb7\xff\xec\xca\xb7\xff\xbf\x7a\x71\xff\x51\x18\x14\xff\x20\x0d\x09\xff\x44\x46\x42\xff\xec\xca\xb7\xff\xfc\xfd\xfc\xff\xfb\xef\xe0\xff\xdc\x8a\x6d\xff\x57\x28\x1f\xff\x2b\x17\x2b\xff\x20\x1b\x28\xff\x06\x03\x0c\xff\x0e\x08\x1e\xff\x20\x10\x27\xff\x34\x1a\x32\xff\x4e\x2f\x5a\xff\x4e\x2f\x5a\xff\x3e\x25\x41\xff\x3e\x25\x41\xff\x4e\x2f\x5a\xff\x61\x35\x6e\xff\x61\x35\x6e\xff\x4f\x31\x66\xff\x4e\x2f\x5a\xff\x4f\x31\x66\xff\x4f\x31\x66\xff\x4f\x35\x52\xff\x61\x35\x6e\xff\x75\x3d\x7e\xfe\x3e\x25\x41\xca\x00\x00\x01\x6e\x00\x00\x01\x29") then
+          elseif event:texturecompare(ax, ay + 20, "\x00\x00\x01\x2a\x00\x00\x01\x6e\x3e\x25\x41\xca\x75\x3d\x7e\xfe\x61\x35\x6e\xff\x4e\x2f\x5a\xff\x4e\x2f\x5a\xff\x4f\x31\x66\xff\x4c\x4c\x71\xff\x3d\x49\x8f\xff\x48\x57\xac\xff\x54\xbf\xf9\xff\xc9\xeb\xfc\xff\xfc\xfd\xfc\xff\xfc\xfd\xfc\xff\xe6\xf5\xf9\xff\xa0\xc9\xec\xff\xc9\xeb\xfc\xff\xe6\xf5\xf9\xff\xa0\xc9\xec\xff\x55\x70\xa7\xff\x17\x2e\x31\xff\x0b\x15\x40\xff\x2d\x27\x38\xff\x96\x6f\x6c\xff\xec\xca\xb7\xff\xec\xca\xb7\xff\xec\xca\xb7\xff\xbf\x7a\x71\xff\x51\x18\x14\xff\x20\x0d\x09\xff\x44\x46\x42\xff\xec\xca\xb7\xff\xfc\xfd\xfc\xff\xfb\xef\xe0\xff\xdc\x8a\x6d\xff\x57\x28\x1f\xff\x2b\x17\x2b\xff\x20\x1b\x28\xff\x06\x03\x0c\xff\x0e\x08\x1e\xff\x20\x10\x27\xff\x34\x1a\x32\xff\x4e\x2f\x5a\xff\x4e\x2f\x5a\xff\x3e\x25\x41\xff\x3e\x25\x41\xff\x4e\x2f\x5a\xff\x61\x35\x6e\xff\x61\x35\x6e\xff\x4f\x31\x66\xff\x4e\x2f\x5a\xff\x4f\x31\x66\xff\x4f\x31\x66\xff\x4f\x35\x52\xff\x61\x35\x6e\xff\x75\x3d\x7e\xfe\x3e\x25\x41\xca\x00\x00\x01\x6e\x00\x00\x01\x29") then
                     readbuff(buffs.torment, true)       
-            end
+          end
         end
         if aw == 64 then
-            if event:texturecompare(ax, ay + 28, "\x26\x25\x40\xff\x26\x26\x41\xff\x26\x27\x43\xff\x25\x27\x44\xff\x25\x2b\x49\xff\x24\x32\x4f\xff\x25\x41\x56\xff\x84\xe2\x41\xff\x86\xe6\x40\xff\x71\xc4\x48\xff\x20\x42\x5f\xff\x23\x39\x5a\xff\x23\x34\x58\xff\x23\x32\x59\xff\x23\x32\x5a\xff\x23\x33\x5b\xff\x22\x33\x5e\xff\x21\x34\x5e\xff\x21\x34\x5f\xff\x21\x35\x61\xff\x20\x37\x64\xff\x1f\x3f\x69\xff\x1d\x48\x70\xff\x6c\xc1\x4d\xff\x87\xe6\x40\xff\x86\xe5\x41\xff\x86\xe5\x41\xff\x86\xe6\x40\xff\x70\xc8\x4c\xff\x1d\x4a\x72\xff\x1d\x3f\x6c\xff\x1e\x39\x6a\xff\x1e\x39\x6a\xff\x1e\x3f\x6c\xff\x1d\x4a\x72\xff\x71\xc8\x4b\xff\x86\xe6\x40\xff\x86\xe5\x40\xff\x86\xe5\x40\xff\x87\xe6\x40\xff\x6c\xc1\x4d\xff\x1c\x48\x70\xff\x1f\x3e\x68\xff\x1f\x38\x65\xff\x21\x35\x61\xff\x21\x34\x5e\xff\x21\x34\x5f\xff\x22\x33\x5c\xff\x22\x32\x5c\xff\x22\x32\x5a\xff\x23\x32\x58\xff\x23\x34\x59\xff\x22\x39\x5b\xff\x21\x42\x60\xff\x71\xc5\x47\xff\x86\xe5\x40\xff\x84\xe2\x41\xff\x25\x42\x57\xff\x24\x32\x4f\xff\x25\x2a\x49\xff\x26\x28\x45\xff\x26\x27\x43\xff\x26\x26\x41\xff\x26\x25\x3e\xff") then
-                    readbuff(buffs.corruptionessence, true)
-            end
+          if event:texturecompare(ax, ay + 28, "\x26\x25\x40\xff\x26\x26\x41\xff\x26\x27\x43\xff\x25\x27\x44\xff\x25\x2b\x49\xff\x24\x32\x4f\xff\x25\x41\x56\xff\x84\xe2\x41\xff\x86\xe6\x40\xff\x71\xc4\x48\xff\x20\x42\x5f\xff\x23\x39\x5a\xff\x23\x34\x58\xff\x23\x32\x59\xff\x23\x32\x5a\xff\x23\x33\x5b\xff\x22\x33\x5e\xff\x21\x34\x5e\xff\x21\x34\x5f\xff\x21\x35\x61\xff\x20\x37\x64\xff\x1f\x3f\x69\xff\x1d\x48\x70\xff\x6c\xc1\x4d\xff\x87\xe6\x40\xff\x86\xe5\x41\xff\x86\xe5\x41\xff\x86\xe6\x40\xff\x70\xc8\x4c\xff\x1d\x4a\x72\xff\x1d\x3f\x6c\xff\x1e\x39\x6a\xff\x1e\x39\x6a\xff\x1e\x3f\x6c\xff\x1d\x4a\x72\xff\x71\xc8\x4b\xff\x86\xe6\x40\xff\x86\xe5\x40\xff\x86\xe5\x40\xff\x87\xe6\x40\xff\x6c\xc1\x4d\xff\x1c\x48\x70\xff\x1f\x3e\x68\xff\x1f\x38\x65\xff\x21\x35\x61\xff\x21\x34\x5e\xff\x21\x34\x5f\xff\x22\x33\x5c\xff\x22\x32\x5c\xff\x22\x32\x5a\xff\x23\x32\x58\xff\x23\x34\x59\xff\x22\x39\x5b\xff\x21\x42\x60\xff\x71\xc5\x47\xff\x86\xe5\x40\xff\x84\xe2\x41\xff\x25\x42\x57\xff\x24\x32\x4f\xff\x25\x2a\x49\xff\x26\x28\x45\xff\x26\x27\x43\xff\x26\x26\x41\xff\x26\x25\x3e\xff") then
+                readbuff(buffs.corruptionessence, true)  
+          end
         end
         if aw == 81 then
             if event:texturecompare(ax, ay + 40, "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x04\x00\x00\x00\x0a\x00\x00\x00\x14\x00\x00\x00\x22\x00\x00\x00\x33\xad\x17\x7e\xdf\xba\x15\x74\xff\xbc\x12\x63\xff\xbd\x0e\x51\xff\xbd\x0c\x3e\xff\xbe\x09\x2d\xff\xbd\x07\x1c\xff\xbc\x06\x19\xff\xbc\x06\x19\xff\xbb\x06\x19\xff\xbb\x06\x19\xff\xbb\x06\x19\xff\xba\x06\x18\xff\xba\x06\x19\xff\xbb\x08\x1a\xff\xdf\x3f\x62\xff\xfa\x41\x60\xff\xfb\x34\x4f\xff\xfb\x33\x4e\xff\xfb\x33\x4e\xff\xfb\x33\x4e\xff\xfb\x33\x4e\xff\xfb\x33\x4e\xff\xfb\x33\x4d\xff\xfb\x33\x4d\xff\xfb\x33\x4d\xff\xfc\x4c\x52\xff\xfd\xd8\x6c\xff\xfd\xeb\x6f\xff\xfd\xeb\x6f\xff\xfd\xeb\x6f\xff\xfd\xeb\x6f\xff\xfd\xeb\x6e\xff\xfd\xeb\x6e\xff\xfd\xeb\x6d\xff\xfd\xea\x6c\xff\xfd\xea\x6b\xff\xf0\xd5\x63\xff\x8b\x73\x42\xff\x80\x67\x46\xff\x83\x67\x4d\xff\x84\x67\x55\xff\x73\x59\x50\xb4\x00\x00\x00\x31\x00\x00\x00\x21\x00\x00\x00\x14\x00\x00\x00\x0b\x00\x00\x00\x05\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00") then
@@ -280,6 +326,20 @@ bolt.onrender2d(function (event)
                     readbuff(buffs.phantomguardian, true)
             end
         end
+        if aw == 76 then
+          if event:texturecompare(ax, ay + 35, "\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x04\x00\x00\x01\x0f\x00\x00\x01\x28\x33\x44\x4f\xa1\x11\x26\x31\xff\x13\x29\x33\xff\x1a\x2b\x34\xff\x12\x23\x2a\xff\x12\x23\x2a\xff\x12\x23\x2a\xff\x12\x1d\x23\xff\x12\x23\x2a\xff\x12\x1d\x23\xff\x2b\x43\x4f\xff\x1a\x32\x3d\xff\x13\x29\x33\xff\x13\x29\x33\xff\x13\x29\x33\xff\x13\x29\x33\xff\x12\x23\x2a\xff\x2b\x43\x4f\xff\x1a\x32\x3d\xff\x06\x11\x15\xff\x06\x11\x15\xff\x12\x1d\x23\xff\x1a\x32\x3d\xff\x3c\x5b\x69\xff\x43\x65\x72\xff\x1a\x32\x3d\xff\x1a\x32\x3d\xff\x13\x29\x33\xff\x13\x29\x33\xff\x1a\x2b\x34\xff\x12\x23\x2a\xff\x13\x29\x33\xff\x1a\x32\x3d\xff\x1a\x2b\x34\xff\x23\x33\x3c\xff\x43\x65\x72\xff\x23\x33\x3c\xff\x04\x0d\x11\xff\x06\x11\x15\xff\x12\x23\x2a\xff\x1a\x2b\x34\xff\x0c\x1b\x22\xff\x0c\x21\x2b\xff\x0d\x25\x31\xff\x29\x4c\x57\xff\x3a\x3f\x40\xff\x3a\x1a\x17\xff\x26\x10\x0e\xff\x3a\x1a\x17\xff\x4b\x1f\x1c\xff\x53\x21\x1f\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x3a\x1a\x17\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x3a\x1a\x17\xff\x4b\x1f\x1c\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x4b\x1f\x1c\xff\x4b\x1f\x1c\xff\x4b\x1f\x1c\xff") then
+            readuielement(elements.central, true)
+          end
+        end
+      elseif aw == 140 then
+        -- checks for bank interface assets
+        if event:texturecompare(ax, ay + 16, "\x00\x00\x01\xff\x09\x11\x15\xff\x02\x0d\x14\xff\x05\x1c\x29\xff\x19\x33\x42\xff\x25\x37\x42\xff\x19\x33\x42\xff\x1c\x31\x3b\xff\x15\x28\x32\xff\x02\x0d\x14\xff\x00\x00\x01\xff\x00\x00\x01\xff\x02\x0d\x14\xff\x02\x0d\x14\xff\x02\x0d\x14\xff\x02\x0d\x14\xff\x03\x09\x0d\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x02\x0d\x14\xff\x03\x09\x0d\xff\x01\x05\x0a\xff\x09\x11\x15\xff\x00\x00\x01\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x02\x0d\x14\xff\x09\x11\x15\xff\x01\x05\x0a\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x0a\x1d\x29\xff\x0c\x24\x32\xff\x13\x26\x31\xff\x0c\x20\x2a\xff\x05\x12\x1a\xff\x0a\x1d\x29\xff\x02\x0d\x14\xff\x03\x09\x0d\xff\x02\x0d\x14\xff\x05\x19\x24\xff\x04\x15\x21\xff\x0a\x1d\x29\xff\x05\x1c\x29\xff\x0c\x20\x2a\xff\x05\x19\x24\xff\x05\x12\x1a\xff\x02\x0d\x14\xff\x00\x00\x01\xff\x00\x00\x01\xff\x02\x0d\x14\xff\x05\x12\x1a\xff\x02\x0d\x14\xff\x0d\x1a\x21\xff\x02\x0d\x19\xff\x0d\x1a\x21\xff\x0c\x20\x2a\xff\x05\x1c\x29\xff\x0d\x1a\x21\xff\x03\x09\x0d\xff\x01\x05\x0a\xff\x00\x00\x01\xff\x04\x15\x21\xff\x0c\x24\x32\xff\x05\x12\x1a\xff\x01\x05\x0a\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x02\x0d\x14\xff\x0a\x1d\x29\xff\x0c\x20\x2a\xff\x05\x12\x1a\xff\x0d\x1a\x21\xff\x0c\x20\x2a\xff\x04\x15\x21\xff\x13\x23\x2b\xff\x14\x2c\x3a\xff\x05\x12\x1a\xff\x03\x09\x0d\xff\x03\x09\x0d\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x03\x09\x0d\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x00\x00\x01\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x00\x00\x01\xff\x02\x0d\x14\xff\x14\x2c\x3a\xff\x0d\x1a\x21\xff\x00\x00\x01\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x01\x05\x0a\xff\x00\x00\x01\xff\x00\x00\x01\xff\x05\x19\x24\xff\x05\x19\x24\xff\x0c\x20\x2a\xff\x04\x15\x21\xff\x0d\x1a\x21\xff\x04\x15\x21\xff\x04\x15\x21\xff\x02\x0d\x14\xff\x02\x0d\x14\xff\x05\x1c\x29\xff\x0c\x20\x2a\xff\x19\x33\x42\xff\x19\x2e\x3a\xff\x02\x0d\x14\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x01\x05\x0a\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x04\x10\x16\xff\x02\x0d\x14\xff\x05\x12\x1a\xff\x04\x15\x21\xff\x04\x15\x21\xff\x05\x19\x24\xff\x0c\x20\x2a\xff\x0c\x20\x2a\xff\x04\x15\x21\xff\x05\x12\x1a\xff\x00\x00\x01\xff\x01\x05\x0a\xff\x03\x09\x0d\xff\x05\x12\x1a\xff\x02\x0d\x19\xff\x04\x15\x21\xff\x0c\x20\x2a\xff\x04\x15\x21\xff\x0a\x1d\x29\xff\x05\x19\x24\xff") then
+          readuielement(elements.bank, true)
+        end
+      elseif aw == 28 then
+        if event:texturecompare(ax, ay + 16, "\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x19\x20\x23\xff\x3f\x51\x5d\xff\x1b\x2b\x34\xff\x0c\x1a\x23\xff\x04\x12\x1b\xff\x13\x22\x2a\xff\x54\x66\x71\xff\x23\x3a\x46\xff\x11\x1d\x24\xff\x02\x0d\x14\xff\x13\x22\x2a\xff\x0c\x1a\x23\xff\x02\x15\x21\xff\x02\x15\x21\xff\x2b\x3a\x44\xff\x54\x66\x71\xff\x51\x24\x23\xff\x3b\x13\x12\xff\x42\x14\x13\xff\x44\x1a\x16\xff\x42\x14\x13\xff\x3b\x13\x12\xff\x3b\x13\x12\xff\x42\x14\x13\xff") then
+            readuielement(elements.lobby, true)
+        end
       end
     end
   end
@@ -301,7 +361,6 @@ bolt.onrender3d(function (event)
       end
       if checkframe then
         model.foundoncheckframe = true
-        hilightability()
       end
     end
   end
@@ -329,6 +388,9 @@ local startcheckframe = function (t)
   for _, model in pairs(models) do
     model.foundoncheckframe = false
   end
+  for _, element in pairs(elements) do
+    element.foundoncheckframe = false
+  end
 end
 
 local endcheckframe = function (t)
@@ -337,11 +399,15 @@ local endcheckframe = function (t)
       buff.active = false
     end
   end
+  for _, element in pairs(elements) do
+    if not element.foundoncheckframe then
+        element.active = false
+    end
+  end
 end
 
 bolt.onswapbuffers (function (event)
-  -- do not run any of this code if not logged in. this is disabled because it slows everything down too much
-  -- bolt.onrender3d(function (event)
+--   bolt.onrendergameview(function (event)
   local t = bolt.time()
   if checkframe then
     endcheckframe(t)
@@ -357,291 +423,301 @@ bolt.onswapbuffers (function (event)
     startcheckframe(t)
   end
 
-  if models.temporalanomaly then
-    print("TA PROCCED???????")
-  end
+  if elements.bank.active or elements.central.active or elements.lobby.active then
+    return
+  else
+  --  if models.temporalanomaly then
+  --    print("TA PROCCED???????")
+  --  end
 
-  if buffs.livingdeath.active or buffs.sorrow.active then
-    cbstyle = "necromancy"
-  elseif buffs.sunshine.active or buffs.torment.active then
-    cbstyle = "magic"
-  end
-
-
-  gassetd = "assets.gauge-ui."
-  ganecro = gassetd .. "necromancy."
-  gaincan = ganecro .. "incantations."
-  gamagic = gassetd .. "magic."
-  gaspell = gamagic .. "active-spell."
-
-  if cbstyle == "none" then
-  elseif cbstyle == "necromancy" then
-
-    if buffs.necrosis.active then
-      necrosisvalue = tostring(buffs.necrosis.number)
-    else
-      necrosisvalue = "0"
+  -- if hidegauge then
+  --   return
+  -- else
+    if buffs.livingdeath.active or buffs.sorrow.active then
+      cbstyle = "necromancy"
+    elseif buffs.sunshine.active or buffs.torment.active then
+      cbstyle = "magic"
     end
-    if buffs.skeletonwarrior.active and buffs.vengefulghost.active and buffs.putridzombie.active and buffs.phantomguardian.active then
-      conjuresactive = "active"
-    else
-      conjuresactive = "inactive"
-    end
-    if buffs.residualsouls.active then
-      if buffs.residualsouls.parensnumber then
-        rsvalue = tostring(buffs.residualsouls.parensnumber)
+
+
+    gassetd = "assets.gauge-ui."
+    ganecro = gassetd .. "necromancy."
+    gaincan = ganecro .. "incantations."
+    gamagic = gassetd .. "magic."
+    gaspell = gamagic .. "active-spell."
+
+    if cbstyle == "none" then
+    elseif cbstyle == "necromancy" then
+
+      if buffs.necrosis.active then
+        necrosisvalue = tostring(buffs.necrosis.number)
       else
-        rsvalue = tostring(buffs.residualsouls.number)
+        necrosisvalue = "0"
       end
-    else
-      rsvalue = "0"
-    end
-    if buffs.livingdeath.active then
-      ldactive = "active"
-      local max = 30
-      local val = buffs.livingdeath.number
-      ldperc = math.min(1, math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
-      print(tostring(ldperc))
-    else
-      ldactive = "inactive"
-      ldperc = 0
-    end
-    if buffs.threadsoffate.active then
-      threadsactive = "active"
-      local max = 6.6
-      local val = buffs.threadsoffate.number
-      tofperc = math.min(150, 150 * math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
-    else
-      threadsactive = "inactive"
-      tofperc = 0
-    end
-    if buffs.splitsoul.active then
-      ssactive = "active"
-      local max = 20.4
-      local val = buffs.splitsoul.number
-      ssperc = math.min(150, 150 * math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
-    else
-      ssactive = "inactive"
-      ssperc = 0
-    end
-    if buffs.deathmark.active then
-      dmactive = "active"
-    else
-      dmactive = "inactive"
-    end
-    if buffs.darkness.active then
-      dnessactive = "active"
-    else
-      dnessactive = "inactive"
-    end
-    if buffs.bloat.active then
-      bloatprev = true
-    else
-      bloatperc = 0
-      bloattimer = 0
-    end
-    local year, month, day, hour, minute, second = bolt.datetime()
-    local unt = (month * 30 * 24 * 3600) + (day * 24 * 3600) + (hour * 3600) + (minute * 60) + second
-    btt = 22.2
-    if bloattimer <= 0 then
+      if buffs.skeletonwarrior.active and buffs.vengefulghost.active and buffs.putridzombie.active and buffs.phantomguardian.active then
+        conjuresactive = "active"
+      else
+        conjuresactive = "inactive"
+      end
+      if buffs.residualsouls.active then
+        if buffs.residualsouls.parensnumber then
+          rsvalue = tostring(buffs.residualsouls.parensnumber)
+        else
+          rsvalue = tostring(buffs.residualsouls.number)
+        end
+      else
+        rsvalue = "0"
+      end
+      if buffs.livingdeath.active then
+        ldactive = "active"
+        local max = 30
+        local val = buffs.livingdeath.number
+        ldperc = math.min(1, math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
+        print(tostring(ldperc))
+      else
+        ldactive = "inactive"
+        ldperc = 0
+      end
+      if buffs.threadsoffate.active then
+        threadsactive = "active"
+        local max = 6.6
+        local val = buffs.threadsoffate.number
+        tofperc = math.min(150, 150 * math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
+      else
+        threadsactive = "inactive"
+        tofperc = 0
+      end
+      if buffs.splitsoul.active then
+        ssactive = "active"
+        local max = 20.4
+        local val = buffs.splitsoul.number
+        ssperc = math.min(150, 150 * math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
+      else
+        ssactive = "inactive"
+        ssperc = 0
+      end
+      if buffs.deathmark.active then
+        dmactive = "active"
+      else
+        dmactive = "inactive"
+      end
+      if buffs.darkness.active then
+        dnessactive = "active"
+      else
+        dnessactive = "inactive"
+      end
       if buffs.bloat.active then
-        bloattimer = btt
-        bloatstart = unt
-        bloatperc = 100
+        bloatprev = true
       else
         bloatperc = 0
+        bloattimer = 0
       end
-    else
-      elapsed_time = unt - bloatstart
-      bloattimer = btt - elapsed_time
-      local function roundToHundredth(value)
-        return math.floor(value * 100 + 0.5) / 100
-      end
-      local function clamp(value)
-        return math.max(0, math.min(1, value))
-      end
-      bloatperc = clamp(roundToHundredth((btt - elapsed_time) / btt))
-    end
-    bloatbarsize = math.min(150, 150 * bloatperc)
-
-
-    local basegauge, width, height = bolt.createsurfacefrompng(ganecro .. intstyle .. "-base")
-    local necrosis, width, height = bolt.createsurfacefrompng(ganecro .. ".necrosis." .. necrosisvalue)
-    local conjures, width, height = bolt.createsurfacefrompng(ganecro .. "conjure-undead-army." .. conjuresactive)
-    local souls, width, height = bolt.createsurfacefrompng(ganecro .. "residual-souls." .. rsvalue)
-    local ldi, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.inactive")
-    local ldbg, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.activebg")
-    local lda, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.active")
-    local ldbar, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.ldbar")
-    local bloatbar, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatbar")
-    local bloatbg, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatbg")
-    local bloatframe, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatframe")
-    local threads, width, height = bolt.createsurfacefrompng(gaincan .. "threads-of-fate." .. threadsactive)
-    local tofbar, width, height = bolt.createsurfacefrompng(gaincan .. "threads-of-fate.tofbar")
-    local ss, width, height = bolt.createsurfacefrompng(gaincan .. "split-soul." .. ssactive)
-    local ssbar, width, height = bolt.createsurfacefrompng(gaincan .. "split-soul.ssbar")
-    local dm, width, height = bolt.createsurfacefrompng(gaincan .. "invoke-death." .. dmactive)
-    local dness, width, height = bolt.createsurfacefrompng(gaincan .. "darkness." .. dnessactive)
-
-    
-    basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
-    conjures:drawtoscreen(0, 0, 100, 100, gx, gy - (3 * scale), 50, 50)
-
-    dm:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 25, gy - (10 * scale), 24, 21)
-    dness:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 50, gy - (10 * scale), 24, 21)
-
-    threads:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 75, gy - (10 * scale), 24, 21)
-    --tofbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (28 * scale), math.floor(tofperc * scale), 2 * scale)
-
-    ss:drawtoscreen(0, 0, 120, 120, gx + math.floor(gw * 0.78), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
-    ssbar:drawtoscreen(0, 0, 150, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(ssperc * scale), 2 * scale)
-
-    ldi:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
-    --if buffs.livingdeath.active then
-      --ldbg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
-    --end
-    lda:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
-    ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor((150 * ldperc) * scale), 2 * scale)
-
-    souls:drawtoscreen(0, 0, 160, 32, gx + math.floor(gw * 0.2) - (2 * scale), gb - ( 10 * scale), 16 * scale * 5, 16 * scale)
-
-    bloatbg:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
-    bloatbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (14 * scale), math.floor(bloatbarsize * scale), 6 * scale)
-    bloatframe:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
-
-    necrosis:drawtoscreen(0, 0, 64, 32, gx + math.floor(gw * 0.2) + (20 * scale * 5) + (16 * scale), gb - ( 16 * scale), 24 * scale * 2, 24 * scale)
-
-  elseif cbstyle == "magic" then
-
-    local gevalue = "0"
-    local btvalue = "0"
-
-    if buffs.sunshine.active then
-      sunactive = "active"
-      sunmax = 30
-      suntimer = buffs.sunshine.number
-    else
-      sunactive = "inactive"
-      suntimer = 0
-    end
-    if buffs.tsunami.active then
-      tsunamiactive = "active"
-      tsunamitimer = buffs.tsunami.number
-    else
-      tsunamiactive = "inactive"
-      tsunamitimer = 0
-    end
-    if buffs.exsanguinate.active then
-      btvalue = buffs.exsanguinate.parensnumber
-      bttimer = buffs.exsanguinate.number
-      if btvalue == 12 then
-        btm = "12"
-       else
-        btm = "0"
-      end
-    else
-      btm = "0"
-      bttimer = 0
-    end
-    if buffs.incitefear.active then
-      getimer = buffs.incitefear.number
-      gevalue = buffs.incitefear.parensnumber
-      if gevalue == 5 then
-        gem = "5"
-      else
-        gem = "0"
-      end
-    else
-        gem = 0
-        getimer = 0
-    end
-    if buffs.animatedead.active then
-      adactive = "active"
-      advalue = tostring(buffs.animatedead.number)
-    else
-      adactive = "inactive"
-    end
-    if buffs.temporalanomaly.active then
-      taactive = "active"
-      tavalue = tostring(buffs.temporalanomaly.number)
-    else
-      taactive = "inactive"
-    end
-    if buffs.conflagrate.active then
-      confactive = "active"
-    else
-      confactive = "inactive"
-    end
-    if buffs.corruptionessence.active then
-      cetimer = buffs.corruptionessence.number
-      cevalue = buffs.corruptionessence.parensnumber
-      if cevalue then
-        if cevalue < 25 then
-          cestack = "1"
-        elseif cevalue < 50 then
-          cestack = "2"
-        elseif cevalue >= 50 then
-          cestack = "3"
+      local year, month, day, hour, minute, second = bolt.datetime()
+      local unt = (month * 30 * 24 * 3600) + (day * 24 * 3600) + (hour * 3600) + (minute * 60) + second
+      btt = 22.2
+      if bloattimer <= 0 then
+        if buffs.bloat.active then
+          bloattimer = btt
+          bloatstart = unt
+          bloatperc = 100
+        else
+          bloatperc = 0
         end
+      else
+        elapsed_time = unt - bloatstart
+        bloattimer = btt - elapsed_time
+        local function roundToHundredth(value)
+          return math.floor(value * 100 + 0.5) / 100
+        end
+        local function clamp(value)
+          return math.max(0, math.min(1, value))
+        end
+        bloatperc = clamp(roundToHundredth((btt - elapsed_time) / btt))
       end
-    else
-      cestack = 0
-      cetimer = 0
-    end
-    if buffs.ruin.active then
-      ruinactive = "active"
-    else
-      ruinactive = "inactive"
-    end
-    if buffs.exsanguinate.number == 20 then
-      activespell = "exsanguinate"
-    elseif buffs.incitefear.number == 20 then
-      activespell = "incite-fear"
-    end
-    local basegauge, width, height = bolt.createsurfacefrompng(gamagic .. intstyle .. "-base")
-    local icon, width, height = bolt.createsurfacefrompng(gamagic .. "icon")
-    local sun, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine." .. sunactive)
-    local tsu, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami." .. tsunamiactive)
-    local ad, width, height = bolt.createsurfacefrompng(gamagic .. "animate-dead.active")
-    local ta, width, height = bolt.createsurfacefrompng(gamagic .. "temporal-anomaly.active")
-    local conf, width, height = bolt.createsurfacefrompng(gamagic .. "conflagrate." .. confactive)
-    local wrr, width, height = bolt.createsurfacefrompng(gamagic .. "ruin." .. ruinactive)
-    local ge, width, height = bolt.createsurfacefrompng(gamagic .. "glacial-embrace." .. gem)
-    local bt, width, height = bolt.createsurfacefrompng(gamagic .. "blood-tithe." .. btm)
-    local ce, width, height = bolt.createsurfacefrompng(gamagic .. "corruption-essence." .. cestack)
-    local cebar, width, height = bolt.createsurfacefrompng(gamagic .. "corruption-essence.cebar")
-    local btbar, width, height = bolt.createsurfacefrompng(gamagic .. "blood-tithe.btbar")
-    local gebar, width, height = bolt.createsurfacefrompng(gamagic .. "glacial-embrace.gebar")
-    local sunbar, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine.sunbar")
-    local tsubar, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami.tsunamibar")
-    local as, width, height = bolt.createsurfacefrompng(gaspell .. activespell)
-    print("soulfire " .. tostring(buffs.soulfire.active) .. " " .. tostring(buffs.soulfire.number))
+      bloatbarsize = math.min(150, 150 * bloatperc)
 
-    basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
-    barwidth = gw * 0.6
-    sun:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.83), gy - ( 40 * scale / 2), 40 * scale, 40 * scale)
-    tsu:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.83), gy - ( 20 * scale / 2) + (30 * scale), 40 * scale, 40 * scale)
 
-    ce:drawtoscreen(0, 0, 81, 27, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
-    cebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (13 * scale), cetimer * 5 * scale, 6 * scale)
-    btbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (16 * scale), bttimer * 7.5 * scale, 2 * scale)
-    gebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (18 * scale), getimer * 7.5 * scale, 2 * scale)
-    sunbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (23 * scale), suntimer * 5 * scale, 2 * scale)
-    tsubar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (26 * scale), tsunamitimer * 5 * scale, 2 * scale)
+      local basegauge, width, height = bolt.createsurfacefrompng(ganecro .. intstyle .. "-base")
+      local necrosis, width, height = bolt.createsurfacefrompng(ganecro .. ".necrosis." .. necrosisvalue)
+      local conjures, width, height = bolt.createsurfacefrompng(ganecro .. "conjure-undead-army." .. conjuresactive)
+      local souls, width, height = bolt.createsurfacefrompng(ganecro .. "residual-souls." .. rsvalue)
+      local ldi, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.inactive")
+      local ldbg, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.activebg")
+      local lda, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.active")
+      local ldbar, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.ldbar")
+      local bloatbar, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatbar")
+      local bloatbg, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatbg")
+      local bloatframe, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatframe")
+      local threads, width, height = bolt.createsurfacefrompng(gaincan .. "threads-of-fate." .. threadsactive)
+      local tofbar, width, height = bolt.createsurfacefrompng(gaincan .. "threads-of-fate.tofbar")
+      local ss, width, height = bolt.createsurfacefrompng(gaincan .. "split-soul." .. ssactive)
+      local ssbar, width, height = bolt.createsurfacefrompng(gaincan .. "split-soul.ssbar")
+      local dm, width, height = bolt.createsurfacefrompng(gaincan .. "invoke-death." .. dmactive)
+      local dness, width, height = bolt.createsurfacefrompng(gaincan .. "darkness." .. dnessactive)
 
-    --fsoa:drawtoscreen(0, 0, 32, 32, gx + math.floor(gw * 0.585) - ( 20 * scale), gy - ( 5 * scale / 2), 15 * scale , 15 * scale)
-    if buffs.temporalanomaly.active then
-      ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
-    elseif buffs.animatedead.active then
-      ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+      
+      basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
+      conjures:drawtoscreen(0, 0, 100, 100, gx, gy - (3 * scale), 50, 50)
+
+      dm:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 25, gy - (10 * scale), 24, 21)
+      dness:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 50, gy - (10 * scale), 24, 21)
+
+      threads:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 75, gy - (10 * scale), 24, 21)
+      --tofbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (28 * scale), math.floor(tofperc * scale), 2 * scale)
+
+      ss:drawtoscreen(0, 0, 120, 120, gx + math.floor(gw * 0.78), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+      ssbar:drawtoscreen(0, 0, 150, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(ssperc * scale), 2 * scale)
+
+      ldi:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+      --if buffs.livingdeath.active then
+        --ldbg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+      --end
+      lda:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+      ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor((150 * ldperc) * scale), 2 * scale)
+
+      souls:drawtoscreen(0, 0, 160, 32, gx + math.floor(gw * 0.2) - (2 * scale), gb - ( 10 * scale), 16 * scale * 5, 16 * scale)
+
+      bloatbg:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
+      bloatbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (14 * scale), math.floor(bloatbarsize * scale), 6 * scale)
+      bloatframe:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
+
+      necrosis:drawtoscreen(0, 0, 64, 32, gx + math.floor(gw * 0.2) + (20 * scale * 5) + (16 * scale), gb - ( 16 * scale), 24 * scale * 2, 24 * scale)
+
+    elseif cbstyle == "magic" then
+
+      local gevalue = "0"
+      local btvalue = "0"
+
+      if buffs.sunshine.active then
+        sunactive = "active"
+        sunmax = 30
+        suntimer = buffs.sunshine.number
+      else
+        sunactive = "inactive"
+        suntimer = 0
+      end
+      if buffs.tsunami.active then
+        tsunamiactive = "active"
+        tsunamitimer = buffs.tsunami.number
+      else
+        tsunamiactive = "inactive"
+        tsunamitimer = 0
+      end
+      if buffs.exsanguinate.active then
+        btvalue = buffs.exsanguinate.parensnumber
+        bttimer = buffs.exsanguinate.number
+        if btvalue == 12 then
+          btm = "12"
+         else
+          btm = "0"
+        end
+      else
+        btm = "0"
+        bttimer = 0
+      end
+      if buffs.incitefear.active then
+        getimer = buffs.incitefear.number
+        gevalue = buffs.incitefear.parensnumber
+        if gevalue == 5 then
+          gem = "5"
+        else
+          gem = "0"
+        end
+      else
+          gem = 0
+          getimer = 0
+      end
+      if buffs.animatedead.active then
+        adactive = "active"
+        advalue = tostring(buffs.animatedead.number)
+      else
+        adactive = "inactive"
+      end
+      if buffs.temporalanomaly.active then
+        taactive = "active"
+        tavalue = tostring(buffs.temporalanomaly.number)
+      else
+        taactive = "inactive"
+      end
+      if buffs.conflagrate.active then
+        confactive = "active"
+      else
+        confactive = "inactive"
+      end
+      if buffs.corruptionessence.active then
+        cetimer = buffs.corruptionessence.number
+        cevalue = buffs.corruptionessence.parensnumber
+        if cevalue then
+          if cevalue < 25 then
+            cestack = "1"
+          elseif cevalue < 50 then
+            cestack = "2"
+          elseif cevalue >= 50 then
+            cestack = "3"
+          end
+        end
+      else
+        cestack = 0
+        cetimer = 0
+      end
+      if buffs.ruin.active then
+        ruinactive = "active"
+      else
+        ruinactive = "inactive"
+      end
+      if buffs.exsanguinate.number == 20 then
+        activespell = "exsanguinate"
+      elseif buffs.incitefear.number == 20 then
+        activespell = "incite-fear"
+      end
+      local basegauge, width, height = bolt.createsurfacefrompng(gamagic .. intstyle .. "-base")
+      local icon, width, height = bolt.createsurfacefrompng(gamagic .. "icon")
+      local sun, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine." .. sunactive)
+      local tsu, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami." .. tsunamiactive)
+      local ad, width, height = bolt.createsurfacefrompng(gamagic .. "animate-dead.active")
+      local ta, width, height = bolt.createsurfacefrompng(gamagic .. "temporal-anomaly.active")
+      local conf, width, height = bolt.createsurfacefrompng(gamagic .. "conflagrate." .. confactive)
+      local wrr, width, height = bolt.createsurfacefrompng(gamagic .. "ruin." .. ruinactive)
+      local ge, width, height = bolt.createsurfacefrompng(gamagic .. "glacial-embrace." .. gem)
+      local bt, width, height = bolt.createsurfacefrompng(gamagic .. "blood-tithe." .. btm)
+      local ce, width, height = bolt.createsurfacefrompng(gamagic .. "corruption-essence." .. cestack)
+      local cebar, width, height = bolt.createsurfacefrompng(gamagic .. "corruption-essence.cebar")
+      local btbar, width, height = bolt.createsurfacefrompng(gamagic .. "blood-tithe.btbar")
+      local gebar, width, height = bolt.createsurfacefrompng(gamagic .. "glacial-embrace.gebar")
+      local sunbar, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine.sunbar")
+      local tsubar, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami.tsunamibar")
+      local as, width, height = bolt.createsurfacefrompng(gaspell .. activespell)
+      print("soulfire " .. tostring(buffs.soulfire.active) .. " " .. tostring(buffs.soulfire.number))
+
+      basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
+      barwidth = gw * 0.6
+      sun:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.83), gy - ( 40 * scale / 2), 40 * scale, 40 * scale)
+      tsu:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.83), gy - ( 20 * scale / 2) + (30 * scale), 40 * scale, 40 * scale)
+
+      ce:drawtoscreen(0, 0, 81, 27, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
+      cebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (13 * scale), cetimer * 5 * scale, 6 * scale)
+      btbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (16 * scale), bttimer * 7.5 * scale, 2 * scale)
+      gebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (18 * scale), getimer * 7.5 * scale, 2 * scale)
+      sunbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (23 * scale), suntimer * 5 * scale, 2 * scale)
+      tsubar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (26 * scale), tsunamitimer * 5 * scale, 2 * scale)
+
+      --fsoa:drawtoscreen(0, 0, 32, 32, gx + math.floor(gw * 0.585) - ( 20 * scale), gy - ( 5 * scale / 2), 15 * scale , 15 * scale)
+      if buffs.temporalanomaly.active then
+        ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+      elseif buffs.animatedead.active then
+        ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+      end
+      if buffs.conflagrate.active then
+        conf:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.75), gy - ( 5 * scale / 2), 20 * scale, 20 * scale)
+      end
+      bt:drawtoscreen(0, 0, 64, 64, gx + (2 * scale), gb - ( 11 * scale), 20 * scale * 0.9, 20 * scale)
+      ge:drawtoscreen(0, 0, 64, 64, gx + (30 * scale) + (1 * scale), gb - ( 11 * scale), 20 * scale * 0.9, 20 * scale)
+      as:drawtoscreen(0, 0, 150, 150, gx, gy - 8 * scale, 50 * scale, 50 * scale)
     end
-    if buffs.conflagrate.active then
-      conf:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.75), gy - ( 5 * scale / 2), 20 * scale, 20 * scale)
-    end
-    bt:drawtoscreen(0, 0, 64, 64, gx + (2 * scale), gb - ( 11 * scale), 20 * scale * 0.9, 20 * scale)
-    ge:drawtoscreen(0, 0, 64, 64, gx + (30 * scale) + (1 * scale), gb - ( 11 * scale), 20 * scale * 0.9, 20 * scale)
-    as:drawtoscreen(0, 0, 150, 150, gx, gy - 8 * scale, 50 * scale, 50 * scale)
-  end
-  --this end is for the onrender3d event
+    --this is the end for the hidegauge check
+  -- end
+    --this is the end for the onrendergameview event
   -- end)
+--this is the end for the onswapbuffers event
+end
 end)
