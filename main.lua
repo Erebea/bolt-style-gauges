@@ -344,7 +344,7 @@ bolt.onrender3d(function (event)
         if model.anim then
           m = m:transform(event:vertexanimation(1))
         end
-        drawbox(m:transform(event:modelmatrix()), event:viewmatrix(), event:projectionmatrix(), model.boxsize, model.boxthickness)
+        --drawbox(m:transform(event:modelmatrix()), event:viewmatrix(), event:projectionmatrix(), model.boxsize, model.boxthickness)
       end
       if checkframe then
         model.foundoncheckframe = true
@@ -412,13 +412,6 @@ end
   if elements.bank.active or elements.central.active or elements.lobby.active then
     return
   else
-  --  if models.temporalanomaly then
-  --    print("TA PROCCED???????")
-  --  end
-
-  -- if hidegauge then
-  --   return
-  -- else
     if buffs.livingdeath.active or buffs.sorrow.active then
       cbstyle = "necromancy"
     elseif buffs.sunshine.active or buffs.torment.active then
@@ -522,36 +515,40 @@ end
       end
       if buffs.livingdeath.active then
         ldactive = "active"
-        ldmax = 30
-        ldval = buffs.livingdeath.number
-        ldelp = ldel
-        ldel = ldmax - ldval
-        if ldel == ldelp then
-          ldel = ldelp - 0.1
+        if not ldmax then
+          ldmax = 3e+7
+          ldes = t
         end
-        ldperc = math.min(1, math.max(0, math.min(1, math.floor(((ldmax - (ldmax - ldval)) / ldmax) * 100 + 0.5) / 100)))
-        print(tostring(ldperc))
+        ldel = t - ldes
       else
         ldactive = "inactive"
-        ldmax = 30
-        ldel = 35
-        ldperc = 0
+        ldmax = false
       end
       if buffs.threadsoffate.active then
         threadsactive = "active"
-        local max = 6.6
-        local val = buffs.threadsoffate.number
-        tofperc = math.min(150, 150 * math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
+        if not tofmax then
+          tofmax = 6.6e+6
+          tofes = t
+        end
+        tofel = t - tofes
+        tofperc = (tofmax - tofel) / tofmax
       else
+        tofmax = false
+        tofel = 0
         threadsactive = "inactive"
         tofperc = 0
       end
       if buffs.splitsoul.active then
         ssactive = "active"
-        local max = 20.4
-        local val = buffs.splitsoul.number
-        ssperc = math.min(150, 150 * math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
+        if not ssmax then
+          ssmax = 2.04e+7
+          sses = t
+        end
+        ssel = t - sses
+        ssperc = (ssmax - ssel) / ssmax
       else
+        ssmax = false
+        ssel = 0
         ssactive = "inactive"
         ssperc = 0
       end
@@ -566,35 +563,24 @@ end
         dnessactive = "inactive"
       end
       if buffs.bloat.active then
-        bloatprev = true
+        if not bloatmax then
+          bloatmax = 1.98e+7
+          bloates = t
+        end
+        bloatel = t - bloates
+        bloatperc = (bloatmax - bloatel) / bloatmax
       else
-        bloatperc = 0
-        bloattimer = 0
+        bloatmax = false
+        bloatel = 1
+        bloates = 1
+        bloatperc = 1
       end
-      local year, month, day, hour, minute, second = bolt.datetime()
-      local unt = (month * 30 * 24 * 3600) + (day * 24 * 3600) + (hour * 3600) + (minute * 60) + second
-      btt = 22.2
-      if bloattimer <= 0 then
-        if buffs.bloat.active then
-          bloattimer = btt
-          bloatstart = unt
-          bloatperc = 100
-        else
-          bloatperc = 0
-        end
-      else
-        elapsed_time = unt - bloatstart
-        bloattimer = btt - elapsed_time
-        local function roundToHundredth(value)
-          return math.floor(value * 100 + 0.5) / 100
-        end
-        local function clamp(value)
-          return math.max(0, math.min(1, value))
-        end
-        bloatperc = clamp(roundToHundredth((btt - elapsed_time) / btt))
-      end
-      bloatbarsize = math.min(150, 150 * bloatperc)
 
+      bloatbarsize = math.min(150, 150 * bloatperc)
+      barfill = function (dest, el, max)
+        perc = (dest - el) / dest
+        return math.max(0, math.min(max, max * perc))
+      end
 
       local basegauge, width, height = bolt.createsurfacefrompng(ganecro .. intstyle .. "-base")
       local necrosis, width, height = bolt.createsurfacefrompng(ganecro .. ".necrosis." .. necrosisvalue)
@@ -622,17 +608,21 @@ end
       dness:drawtoscreen(0, 0, 24, 21, gm + (50 * scale), gy - (10 * scale), 24 * scale, 21 * scale)
       ss:drawtoscreen(0, 0, 120, 120, gm - (25 * scale), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
       threads:drawtoscreen(0, 0, 24, 21, gm - (50 * scale), gy - (10 * scale), 24 * scale, 21 * scale)
-      --tofbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (28 * scale), math.floor(tofperc * scale), 2 * scale)
-
-      ssbar:drawtoscreen(0, 0, 150, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(ssperc * scale), 2 * scale)
+      if buffs.threadsoffate.active then
+        tofbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (28 * scale), math.floor(barfill(tofmax, tofel, 150) * scale), 2 * scale)
+      end
+      if buffs.splitsoul.active then
+      ssbar:drawtoscreen(0, 0, 150, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(barfill(ssmax, ssel, 150) * scale), 2 * scale)
+      end
 
       --if buffs.livingdeath.active then
         --ldbg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
       --end
 
       --do this every frame before you need to use the hexagon
-      updatelinesurface(ldel, ldmax, lineprogram, ld, 100)
-
+      if buffs.livingdeath.active then
+        updatelinesurface(ldel, ldmax, lineprogram, ld, 100)
+      end
       ld:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
 
       --ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor((150 * ldperc) * scale), 2 * scale)
@@ -640,10 +630,10 @@ end
       souls:drawtoscreen(0, 0, 160, 32, gx + math.floor(gw * 0.2) - (2 * scale), gb - ( 10 * scale), 16 * scale * 5, 16 * scale)
 
       bloatbg:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
-      bloatbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (14 * scale), math.floor(bloatbarsize * scale), 6 * scale)
       bloatframe:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
       if buffs.bloat.active then
-        ticker:drawtoscreen(0, 0, 9, 14, gx + math.floor(gw * 0.2) + math.floor(bloatbarsize * scale) - ( 8 * scale), gy + (13 * scale) - (2 * scale), 9 * scale, 10 * scale)
+        bloatbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (14 * scale), math.floor(barfill(bloatmax, bloatel, 150) * scale), 6 * scale)
+        ticker:drawtoscreen(0, 0, 9, 14, gx + math.floor(gw * 0.2) + math.floor(barfill(bloatmax, bloatel, 150) * scale) - ( 8 * scale), gy + (13 * scale) - (2 * scale), 9 * scale, 10 * scale)
       end
 
 
