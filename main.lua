@@ -31,6 +31,14 @@ gb = gy + gh
     -- right of the gauge
 gr = gx + gw
 
+-- local opentempbrowser = function (url)
+--   local browser = bolt.createbrowser(0, 0, url)
+--     browser:oncloserequest(function () menubrowser:close() end)
+--     browser:open()
+--     browser:close()
+--   end
+-- end
+
 local cbstyle = "none"
 local activespell = "no-spell"
 local hidegauge = false
@@ -65,7 +73,6 @@ local buffs = {
 
 local models = {
   temporalanomaly = { center = bolt.point(0, 200,0), boxsize = 500, boxthickness = 100},
-  dummy = { center = bolt.point(0, 200, 100), boxsize = 500, boxthickness = 100},
 }
 
 local elements = {
@@ -75,16 +82,7 @@ local elements = {
 }
 
 for _, model in pairs(models) do
-  model.dohighlight = false
-end
-
-local ref = ref 
-
-if ref then
-  if type == 'model' then
-    ref = models[ref]
-    if ref then ref.dohighlight = true end
-  end
+  model.dohighlight = true
 end
 
 local bloattimer = 0
@@ -92,7 +90,6 @@ local bloattimer = 0
 local checkframe = false
 local checktime = bolt.time()
 local checkinterval = 500000 -- check twice per second
-
 local nextrender2dbuff = nil
 local nextrender2ddebuff = nil
 local nextrender2dpxleft = 0
@@ -127,16 +124,6 @@ local render3dlookup = {
     local anim = event:animated()
     local x, y, z = event:vertexpoint(1):get()
     if anim and x == -0 and y == 32 and z == -224 then return models.temporalanomaly end
-    return nil
-  end,
-
-  [2658] = function (event)
-    -- combat dummy
-    local anim = event:animated()
-    local x, y, z = event:vertexpoint(1):get()
-    if anim and x == -83 and y == 217 and z == 83 then 
-      return models.dummy
-    end
     return nil
   end,
 }
@@ -421,8 +408,7 @@ bolt.onswapbuffers (function (event)
       checktime = t
     end
     startcheckframe(t)
-  end
-
+end
   if elements.bank.active or elements.central.active or elements.lobby.active then
     return
   else
@@ -447,8 +433,74 @@ bolt.onswapbuffers (function (event)
     gaspell = gamagic .. "active-spell."
 
     if cbstyle == "none" then
+      return
     elseif cbstyle == "necromancy" then
+      -- setup
+      local lineprogram = bolt.createshaderprogram(
+        bolt.createvertexshader(
+      "layout (location = 0) in vec2 vXY;".. -- points from -1 to 1, as needed by opengl to draw a rectangle
+      "out vec2 xy;".. -- calculated pixel coordinate of the vertex based on vXY and target_wh
+      "layout (location = 0) uniform vec2 target_wh;".. -- pixel width and height of the target area
+      "void main() {"..
+        "xy = vec2(((vXY.x + 1.0) / 2.0) * target_wh.x, ((vXY.y + 1.0) / 2.0) * target_wh.y);"..
+        "gl_Position = vec4(vXY, 0.0, 1.0);"..
+      "}"
+        ),
+        bolt.createfragmentshader(
+      "in vec2 xy;".. -- pixel coordinate of this fragment
+      "out highp vec4 col;".. -- fragment colour output
+      "layout (location = 1) uniform vec4 line_points;".. -- the pixel coordinates of the two points of the line we want to draw
+      "layout (location = 2) uniform vec4 line_colour;".. -- the RGBA colour of the central part of the line
+      "layout (location = 3) uniform float line_thickness;".. --thickness of the line in pixels
+      "void main() {"..
+        "vec2 p1 = line_points.st;"..
+        "vec2 p2 = line_points.pq;"..
+        "vec2 perpendicular = vec2(line_points.t - line_points.q, line_points.p - line_points.s);"..
+        "float dist_line = abs(dot(normalize(perpendicular), p2 - xy));"..
+        "float dist_p1 = length(p1 - xy);"..
+        "float dist_p2 = length(p2 - xy);"..
+        "bool nearestp1 = dot(xy - p1, p2 - p1) < 0.0;"..
+        "bool nearestp2 = dot(xy - p2, p1 - p2) < 0.0;"..
+        "float dist = mix(mix(dist_p2, dist_p1, nearestp1), dist_line, !nearestp1 && !nearestp2);"..
+        "col = vec4(line_colour.stp, line_colour.q * (1.0 - smoothstep(line_thickness, line_thickness + 0.5, dist)));"..
+      "}"
+        )
+      )
+      lineprogram:setattribute(0, 1, true, false, 2, 0, 2)
+      local linebuffer = bolt.createshaderbuffer("\xFF\xFF\x01\xFF\x01\x01\xFF\xFF\x01\x01\xFF\x01")
+      linesurfacesize = 100
+      local linesurface = bolt.createsurface(linesurfacesize, linesurfacesize)
+      lineprogram:setuniform2f(0, linesurfacesize, linesurfacesize)
+      lineprogram:setuniform4f(2, 224/255, 47/255, 221/255, 1) -- line colour (rgba, 0.0 - 1.0)
+      lineprogram:setuniform1f(3, 2) -- line thickness (px)
 
+      -- function to redraw the hexagon to the surface
+      local updatelinesurface = function (elapsed, maxtime, program, surface, surfacesize)
+        linesurface:clear()
+        if elapsed > maxtime then return false end
+        local surfaceradius = (surfacesize - 0) / 2
+        for i = 1, 6 do
+          local hexradius = (surfacesize - 5) / 2
+          local angle = (90 + ((i - 1) * 60)) * math.pi / 180.0
+          local nextangle = (90 + (i * 60)) * math.pi / 180.0
+          local x = math.cos(angle) * hexradius + surfaceradius
+          local y = surfacesize - (math.sin(angle) * hexradius + surfaceradius)
+          local nextx = math.cos(nextangle) * hexradius + surfaceradius
+          local nexty = surfacesize - (math.sin(nextangle) * hexradius + surfaceradius)
+          local timestart = maxtime * (6 - i) / 6
+          local lastline = elapsed >= timestart
+          if lastline then
+            local length = (1.0 - ((elapsed - timestart) / (maxtime / 6))) * hexradius
+            local relangle = math.atan2(nexty - y, nextx - x)
+            nextx = math.cos(relangle) * length + x
+            nexty = math.sin(relangle) * length + y
+          end
+          lineprogram:setuniform4f(1, x, y, nextx, nexty)
+          lineprogram:drawtosurface(surface, linebuffer, 6)
+          if lastline then return true end
+        end
+        return true
+      end
       if buffs.necrosis.active then
         necrosisvalue = tostring(buffs.necrosis.number)
       else
@@ -470,12 +522,19 @@ bolt.onswapbuffers (function (event)
       end
       if buffs.livingdeath.active then
         ldactive = "active"
-        local max = 30
-        local val = buffs.livingdeath.number
-        ldperc = math.min(1, math.max(0, math.min(1, math.floor(((max - (max - val)) / max) * 100 + 0.5) / 100)))
+        ldmax = 30
+        ldval = buffs.livingdeath.number
+        ldelp = ldel
+        ldel = ldmax - ldval
+        if ldel == ldelp then
+          ldel = ldelp - 0.1
+        end
+        ldperc = math.min(1, math.max(0, math.min(1, math.floor(((ldmax - (ldmax - ldval)) / ldmax) * 100 + 0.5) / 100)))
         print(tostring(ldperc))
       else
         ldactive = "inactive"
+        ldmax = 30
+        ldel = 35
         ldperc = 0
       end
       if buffs.threadsoffate.active then
@@ -542,12 +601,12 @@ bolt.onswapbuffers (function (event)
       local conjures, width, height = bolt.createsurfacefrompng(ganecro .. "conjure-undead-army." .. conjuresactive)
       local souls, width, height = bolt.createsurfacefrompng(ganecro .. "residual-souls." .. rsvalue)
       local ldi, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.inactive")
-      local ldbg, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.activebg")
-      local lda, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.active")
+      local ld, width, height = bolt.createsurfacefrompng(ganecro .. "living-death." .. ldactive)
       local ldbar, width, height = bolt.createsurfacefrompng(ganecro .. "living-death.ldbar")
       local bloatbar, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatbar")
       local bloatbg, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatbg")
       local bloatframe, width, height = bolt.createsurfacefrompng(ganecro .. "bloat.bloatframe")
+      local ticker, width, height = bolt.createsurfacefrompng("assets.interface.modern.ticker")
       local threads, width, height = bolt.createsurfacefrompng(gaincan .. "threads-of-fate." .. threadsactive)
       local tofbar, width, height = bolt.createsurfacefrompng(gaincan .. "threads-of-fate.tofbar")
       local ss, width, height = bolt.createsurfacefrompng(gaincan .. "split-soul." .. ssactive)
@@ -557,29 +616,36 @@ bolt.onswapbuffers (function (event)
 
       
       basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
-      conjures:drawtoscreen(0, 0, 100, 100, gx, gy - (3 * scale), 50, 50)
+      conjures:drawtoscreen(0, 0, 100, 100, gx, gy - (3 * scale), 50 * scale, 50 * scale)
 
-      dm:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 25, gy - (10 * scale), 24, 21)
-      dness:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 50, gy - (10 * scale), 24, 21)
-
-      threads:drawtoscreen(0, 0, 24, 21, gx + math.floor(gw * 0.2) + 75, gy - (10 * scale), 24, 21)
+      dm:drawtoscreen(0, 0, 24, 21, gm + ( 25 * scale), gy - (10 * scale), 24 * scale, 21 * scale)
+      dness:drawtoscreen(0, 0, 24, 21, gm + (50 * scale), gy - (10 * scale), 24 * scale, 21 * scale)
+      ss:drawtoscreen(0, 0, 120, 120, gm - (25 * scale), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+      threads:drawtoscreen(0, 0, 24, 21, gm - (50 * scale), gy - (10 * scale), 24 * scale, 21 * scale)
       --tofbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (28 * scale), math.floor(tofperc * scale), 2 * scale)
 
-      ss:drawtoscreen(0, 0, 120, 120, gx + math.floor(gw * 0.78), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
       ssbar:drawtoscreen(0, 0, 150, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(ssperc * scale), 2 * scale)
 
-      ldi:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
       --if buffs.livingdeath.active then
         --ldbg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
       --end
-      lda:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
-      ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor((150 * ldperc) * scale), 2 * scale)
+
+      --do this every frame before you need to use the hexagon
+      updatelinesurface(ldel, ldmax, lineprogram, ld, 100)
+
+      ld:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+
+      --ldbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (22 * scale), math.floor((150 * ldperc) * scale), 2 * scale)
 
       souls:drawtoscreen(0, 0, 160, 32, gx + math.floor(gw * 0.2) - (2 * scale), gb - ( 10 * scale), 16 * scale * 5, 16 * scale)
 
       bloatbg:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
       bloatbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (14 * scale), math.floor(bloatbarsize * scale), 6 * scale)
       bloatframe:drawtoscreen(0, 0, 154, 12, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
+      if buffs.bloat.active then
+        ticker:drawtoscreen(0, 0, 9, 14, gx + math.floor(gw * 0.2) + math.floor(bloatbarsize * scale) - ( 8 * scale), gy + (13 * scale) - (2 * scale), 9 * scale, 10 * scale)
+      end
+
 
       necrosis:drawtoscreen(0, 0, 64, 32, gx + math.floor(gw * 0.2) + (20 * scale * 5) + (16 * scale), gb - ( 16 * scale), 24 * scale * 2, 24 * scale)
 
@@ -588,20 +654,94 @@ bolt.onswapbuffers (function (event)
       local gevalue = "0"
       local btvalue = "0"
 
+      -- setup
+      local lineprogram = bolt.createshaderprogram(
+        bolt.createvertexshader(
+      "layout (location = 0) in vec2 vXY;".. -- points from -1 to 1, as needed by opengl to draw a rectangle
+      "out vec2 xy;".. -- calculated pixel coordinate of the vertex based on vXY and target_wh
+      "layout (location = 0) uniform vec2 target_wh;".. -- pixel width and height of the target area
+      "void main() {"..
+        "xy = vec2(((vXY.x + 1.0) / 2.0) * target_wh.x, ((vXY.y + 1.0) / 2.0) * target_wh.y);"..
+        "gl_Position = vec4(vXY, 0.0, 1.0);"..
+      "}"
+        ),
+        bolt.createfragmentshader(
+      "in vec2 xy;".. -- pixel coordinate of this fragment
+      "out highp vec4 col;".. -- fragment colour output
+      "layout (location = 1) uniform vec4 line_points;".. -- the pixel coordinates of the two points of the line we want to draw
+      "layout (location = 2) uniform vec4 line_colour;".. -- the RGBA colour of the central part of the line
+      "layout (location = 3) uniform float line_thickness;".. --thickness of the line in pixels
+      "void main() {"..
+        "vec2 p1 = line_points.st;"..
+        "vec2 p2 = line_points.pq;"..
+        "vec2 perpendicular = vec2(line_points.t - line_points.q, line_points.p - line_points.s);"..
+        "float dist_line = abs(dot(normalize(perpendicular), p2 - xy));"..
+        "float dist_p1 = length(p1 - xy);"..
+        "float dist_p2 = length(p2 - xy);"..
+        "bool nearestp1 = dot(xy - p1, p2 - p1) < 0.0;"..
+        "bool nearestp2 = dot(xy - p2, p1 - p2) < 0.0;"..
+        "float dist = mix(mix(dist_p2, dist_p1, nearestp1), dist_line, !nearestp1 && !nearestp2);"..
+        "col = vec4(line_colour.stp, line_colour.q * (1.0 - smoothstep(line_thickness, line_thickness + 0.5, dist)));"..
+      "}"
+        )
+      )
+      lineprogram:setattribute(0, 1, true, false, 2, 0, 2)
+      local linebuffer = bolt.createshaderbuffer("\xFF\xFF\x01\xFF\x01\x01\xFF\xFF\x01\x01\xFF\x01")
+      linesurfacesize = 100
+      local linesurface = bolt.createsurface(linesurfacesize, linesurfacesize)
+      lineprogram:setuniform2f(0, linesurfacesize, linesurfacesize)
+      lineprogram:setuniform4f(2, 66/255, 222/255, 236/255, 1) -- line colour (rgba, 0.0 - 1.0)
+      lineprogram:setuniform1f(3, 2) -- line thickness (px)
+
+      -- function to redraw the hexagon to the surface
+      local updatelinesurface = function (elapsed, maxtime, program, surface, surfacesize)
+        linesurface:clear()
+        if elapsed > maxtime then return false end
+        local surfaceradius = (surfacesize - 0) / 2
+        for i = 1, 6 do
+          local hexradius = (surfacesize - 5) / 2
+          local angle = (90 + ((i - 1) * 60)) * math.pi / 180.0
+          local nextangle = (90 + (i * 60)) * math.pi / 180.0
+          local x = math.cos(angle) * hexradius + surfaceradius
+          local y = surfacesize - (math.sin(angle) * hexradius + surfaceradius)
+          local nextx = math.cos(nextangle) * hexradius + surfaceradius
+          local nexty = surfacesize - (math.sin(nextangle) * hexradius + surfaceradius)
+          local timestart = maxtime * (6 - i) / 6
+          local lastline = elapsed >= timestart
+          if lastline then
+            local length = (1.0 - ((elapsed - timestart) / (maxtime / 6))) * hexradius
+            local relangle = math.atan2(nexty - y, nextx - x)
+            nextx = math.cos(relangle) * length + x
+            nexty = math.sin(relangle) * length + y
+          end
+          lineprogram:setuniform4f(1, x, y, nextx, nexty)
+          lineprogram:drawtosurface(surface, linebuffer, 6)
+          if lastline then return true end
+        end
+        return true
+      end
+
       if buffs.sunshine.active then
         sunactive = "active"
-        sunmax = 30
-        suntimer = buffs.sunshine.number
+        if not sunmax then
+          sunmax = 3e+7
+          sunes = t
+        end
+        sunel = t - sunes
       else
         sunactive = "inactive"
-        suntimer = 0
+        sunmax = false
       end
       if buffs.tsunami.active then
         tsunamiactive = "active"
-        tsunamitimer = buffs.tsunami.number
+        if not tsumax then
+          tsumax = 3e+7
+          tsues = t
+        end
+        tsuel = t - tsues
       else
         tsunamiactive = "inactive"
-        tsunamitimer = 0
+        tsumax = false
       end
       if buffs.exsanguinate.active then
         btvalue = buffs.exsanguinate.parensnumber
@@ -635,7 +775,10 @@ bolt.onswapbuffers (function (event)
       end
       if buffs.temporalanomaly.active then
         taactive = "active"
-        tavalue = tostring(buffs.temporalanomaly.number)
+        if models.temporalanomaly.foundoncheckframe then
+          print("something happened")
+          taactive = "ta-activate"
+        end
       else
         taactive = "inactive"
       end
@@ -675,7 +818,7 @@ bolt.onswapbuffers (function (event)
       local sun, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine." .. sunactive)
       local tsu, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami." .. tsunamiactive)
       local ad, width, height = bolt.createsurfacefrompng(gamagic .. "animate-dead.active")
-      local ta, width, height = bolt.createsurfacefrompng(gamagic .. "temporal-anomaly.active")
+      local ta, width, height = bolt.createsurfacefrompng(gamagic .. "temporal-anomaly." .. taactive)
       local conf, width, height = bolt.createsurfacefrompng(gamagic .. "conflagrate." .. confactive)
       local wrr, width, height = bolt.createsurfacefrompng(gamagic .. "ruin." .. ruinactive)
       local ge, width, height = bolt.createsurfacefrompng(gamagic .. "glacial-embrace." .. gem)
@@ -687,25 +830,31 @@ bolt.onswapbuffers (function (event)
       local sunbar, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine.sunbar")
       local tsubar, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami.tsunamibar")
       local as, width, height = bolt.createsurfacefrompng(gaspell .. activespell)
-      print("soulfire " .. tostring(buffs.soulfire.active) .. " " .. tostring(buffs.soulfire.number))
+      --print("soulfire " .. tostring(buffs.soulfire.active) .. " " .. tostring(buffs.soulfire.number))
 
       basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
       barwidth = gw * 0.6
-      sun:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.83), gy - ( 40 * scale / 2), 40 * scale, 40 * scale)
-      tsu:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.83), gy - ( 20 * scale / 2) + (30 * scale), 40 * scale, 40 * scale)
+      if buffs.sunshine.active then
+        updatelinesurface(sunel, sunmax, lineprogram, sun, 100)
+      end
+      if buffs.tsunami.active then
+        updatelinesurface(tsuel, tsumax, lineprogram, tsu, 100)
+      end
+      sun:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
+      tsu:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.87), gb - ( 55 * scale / 2), 50 * scale, 50 * scale)
 
       ce:drawtoscreen(0, 0, 81, 27, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
       cebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (13 * scale), cetimer * 5 * scale, 6 * scale)
       btbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (16 * scale), bttimer * 7.5 * scale, 2 * scale)
       gebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (18 * scale), getimer * 7.5 * scale, 2 * scale)
-      sunbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (23 * scale), suntimer * 5 * scale, 2 * scale)
-      tsubar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (26 * scale), tsunamitimer * 5 * scale, 2 * scale)
+      --sunbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (23 * scale), suntimer * 5 * scale, 2 * scale)
+      --tsubar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (26 * scale), tsunamitimer * 5 * scale, 2 * scale)
 
       --fsoa:drawtoscreen(0, 0, 32, 32, gx + math.floor(gw * 0.585) - ( 20 * scale), gy - ( 5 * scale / 2), 15 * scale , 15 * scale)
       if buffs.temporalanomaly.active then
-        ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
       elseif buffs.animatedead.active then
-        ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.74), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
       end
       if buffs.conflagrate.active then
         conf:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.75), gy - ( 5 * scale / 2), 20 * scale, 20 * scale)
