@@ -13,7 +13,7 @@ local modules = {
   popup = require("modules.popup.popup"),
 }
 -- interface scaling value
-scale = 1
+scale = 1.3
 -- modern or legacy interface, I haven't made legacy assets yet
 intstyle = "modern"
 -- the width of the gauge
@@ -21,9 +21,9 @@ gw = 260 * scale
 -- the height of the gauge
 gh = 44 * scale
 -- x coordinate of the gauge
-gx = 535
+gx = (1920 / 2) - gw
 -- y coordinate of the gauge
-gy = 550
+gy = 530
     -- middle position of the gauge
 gm = gx + ( gw / 2)
     -- bottom of the gauge
@@ -144,9 +144,7 @@ local rendericonlookup1 = {
 
   [2382] = function (event)
     local x, y, z = event:modelvertexpoint(1, 26):get()
-    if not (x == 0 and y == 5 and z == -202) then return nil end
-    local r, g, b, _ = event:modelvertexcolour(1, 26)
-    if rougheqrgb(r, g, b, 127, 127, 127) then return buffs.soulfire, nil end
+    if x == 0 and y == 5 and z == -202 then return nil, buffs.soulfire end
     return nil, nil
   end,
 
@@ -242,7 +240,6 @@ bolt.onrender2d(function (event)
       local readuielement = function (element, exists)
         setuidetails(element, i + verticesperimage, pxleft, pxtop, exists)
       end
-
       if aw == ah then
         if aw == 60 then
           if event:texturecompare(ax, ay + 30, "\x21\x4d\x6c\xff\x25\x55\x74\xff\x28\x5f\x81\xff\x2c\x69\x8c\xff\x2f\x6e\x94\xff\x2d\x67\x90\xff\x27\x5a\x85\xff\x26\x52\x80\xff\x27\x55\x86\xff\x29\x5b\x8c\xff\x2b\x61\x93\xff\x2d\x67\x99\xff\x2f\x6d\x9f\xff\x32\x74\xa7\xff\x36\x7b\xad\xff\x39\x83\xb5\xff\x3a\x8a\xb9\xff\x3b\x9e\xc6\xff\x43\xd3\xe4\xff\x4e\xf3\xf3\xff\x48\xd5\xe4\xff\x41\xb1\xd3\xff\x44\xb2\xd5\xff\x46\xb7\xd8\xff\x47\xc3\xdd\xff\x58\xee\xef\xff\x55\xe1\xea\xff\x47\xc4\xde\xff\x48\xc4\xde\xff\x4d\xd2\xe4\xff\x5e\xf2\xf0\xff\x4f\xd6\xe5\xff\x47\xc2\xdd\xff\x46\xc2\xdc\xff\x56\xde\xe8\xff\x5e\xf3\xf1\xff\x46\xca\xde\xff\x3e\xae\xd1\xff\x3e\xa8\xcd\xff\x3d\xa7\xcc\xff\x45\xca\xde\xff\x4c\xf1\xf3\xff\x43\xd6\xe5\xff\x38\x9b\xc3\xff\x36\x7f\xb3\xff\x34\x79\xac\xff\x2f\x70\xa2\xff\x2c\x68\x9a\xff\x2a\x61\x93\xff\x28\x5a\x8b\xff\x27\x55\x85\xff\x26\x4f\x80\xff\x24\x4c\x7a\xff\x22\x4a\x76\xff\x20\x46\x70\xff\x1e\x41\x69\xff\x1d\x3e\x64\xff\x1c\x3d\x60\xff\x1c\x3e\x5e\xff\x1d\x3e\x5d\xff") then
@@ -315,6 +312,8 @@ bolt.onrender2d(function (event)
         end
         if aw == 76 then
           if event:texturecompare(ax, ay + 35, "\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x04\x00\x00\x01\x0f\x00\x00\x01\x28\x33\x44\x4f\xa1\x11\x26\x31\xff\x13\x29\x33\xff\x1a\x2b\x34\xff\x12\x23\x2a\xff\x12\x23\x2a\xff\x12\x23\x2a\xff\x12\x1d\x23\xff\x12\x23\x2a\xff\x12\x1d\x23\xff\x2b\x43\x4f\xff\x1a\x32\x3d\xff\x13\x29\x33\xff\x13\x29\x33\xff\x13\x29\x33\xff\x13\x29\x33\xff\x12\x23\x2a\xff\x2b\x43\x4f\xff\x1a\x32\x3d\xff\x06\x11\x15\xff\x06\x11\x15\xff\x12\x1d\x23\xff\x1a\x32\x3d\xff\x3c\x5b\x69\xff\x43\x65\x72\xff\x1a\x32\x3d\xff\x1a\x32\x3d\xff\x13\x29\x33\xff\x13\x29\x33\xff\x1a\x2b\x34\xff\x12\x23\x2a\xff\x13\x29\x33\xff\x1a\x32\x3d\xff\x1a\x2b\x34\xff\x23\x33\x3c\xff\x43\x65\x72\xff\x23\x33\x3c\xff\x04\x0d\x11\xff\x06\x11\x15\xff\x12\x23\x2a\xff\x1a\x2b\x34\xff\x0c\x1b\x22\xff\x0c\x21\x2b\xff\x0d\x25\x31\xff\x29\x4c\x57\xff\x3a\x3f\x40\xff\x3a\x1a\x17\xff\x26\x10\x0e\xff\x3a\x1a\x17\xff\x4b\x1f\x1c\xff\x53\x21\x1f\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x3a\x1a\x17\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x3a\x1a\x17\xff\x4b\x1f\x1c\xff\x43\x1c\x19\xff\x43\x1c\x19\xff\x4b\x1f\x1c\xff\x4b\x1f\x1c\xff\x4b\x1f\x1c\xff") then
+            readuielement(elements.central, true)
+          elseif event:texturecompare(ax, ay + 35, "\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x01\x00\x00\x01\x02\x00\x00\x01\x03\x00\x00\x01\x06\x00\x00\x01\x09\x00\x00\x01\x0d\x00\x00\x01\x12\x00\x00\x01\x19\x00\x00\x01\x21\x00\x00\x01\x2c\x00\x00\x01\x38\x00\x00\x01\x50\x00\x00\x01\x72\x1b\x38\x46\xff\x48\x64\x73\xff\x0b\x2b\x39\xff\x03\x23\x32\xff\x14\x33\x42\xff\x00\x0d\x13\xff\x00\x09\x0d\xff\x00\x00\x01\xff\x00\x00\x01\xff\x00\x0d\x13\xff\x01\x13\x1b\xff\x00\x06\x09\xff\x1b\x38\x46\xff\x5c\x7b\x8a\xff\x1a\x31\x3c\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x01\x13\x1b\xff\x01\x13\x1b\xff\x00\x0d\x13\xff\x01\x10\x16\xff\x01\x13\x1b\xff\x01\x10\x16\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x09\x0d\xff\x00\x09\x0d\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x01\x10\x16\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x09\x0d\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x0d\x13\xff\x00\x09\x0d\xff\x00\x0d\x13\xff") then
             readuielement(elements.central, true)
           end
         end
@@ -394,7 +393,7 @@ local endcheckframe = function (t)
 end
 
 bolt.onswapbuffers (function (event)
---   bolt.onrendergameview(function (event)
+  --   bolt.onrendergameview(function (event)
   local t = bolt.time()
   if checkframe then
     endcheckframe(t)
@@ -408,7 +407,7 @@ bolt.onswapbuffers (function (event)
       checktime = t
     end
     startcheckframe(t)
-end
+  end
   if elements.bank.active or elements.central.active or elements.lobby.active then
     return
   else
@@ -604,10 +603,10 @@ end
       basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
       conjures:drawtoscreen(0, 0, 100, 100, gx, gy - (3 * scale), 50 * scale, 50 * scale)
 
-      dm:drawtoscreen(0, 0, 32, 32, gm + ( 45 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
-      dness:drawtoscreen(0, 0, 32, 32, gm + (70 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
-      ss:drawtoscreen(0, 0, 32, 32, gm - (25 * scale), gy - ( 12 * scale), 24 * scale, 24 * scale)
-      threads:drawtoscreen(0, 0, 32, 32, gm - (50 * scale), gy - (10 * scale), 20 * scale, 20 * scale)
+      dm:drawtoscreen(0, 0, 24, 24, gm + ( 45 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
+      dness:drawtoscreen(0, 0, 24, 24, gm + (70 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
+      ss:drawtoscreen(0, 0, 24, 24, gm - (25 * scale), gy - ( 12 * scale), 24 * scale, 24 * scale)
+      threads:drawtoscreen(0, 0, 20, 20, gm - (50 * scale), gy - (10 * scale), 20 * scale, 20 * scale)
       if buffs.threadsoffate.active then
         tofbar:drawtoscreen(0, 0, 1, 6, gx + math.floor(gw * 0.2), gy + (25 * scale), math.floor(barfill(tofmax, tofel, 150) * scale), 2 * scale)
       end
@@ -636,8 +635,7 @@ end
         ticker:drawtoscreen(0, 0, 9, 14, gx + math.floor(gw * 0.2) + math.floor(barfill(bloatmax, bloatel, 150) * scale) - ( 8 * scale), gy + (13 * scale) - (2 * scale), 9 * scale, 10 * scale)
       end
 
-
-      necrosis:drawtoscreen(0, 0, 64, 32, gx + math.floor(gw * 0.2) + (20 * scale * 5) + (16 * scale), gb - ( 16 * scale), 24 * scale * 2, 24 * scale)
+      necrosis:drawtoscreen(0, 0, 48, 24, gx + math.floor(gw * 0.2) + (20 * scale * 5) + (16 * scale), gb - ( 16 * scale), 24 * scale * 2, 24 * scale)
 
     elseif cbstyle == "magic" then
 
@@ -766,11 +764,10 @@ end
       if buffs.temporalanomaly.active then
         taactive = "active"
         if models.temporalanomaly.foundoncheckframe then
-          print("something happened")
           taactive = "ta-activate"
         end
       else
-        taactive = "inactive"
+        taactive = "active"
       end
       if buffs.conflagrate.active then
         confactive = "active"
@@ -792,6 +789,9 @@ end
       else
         cestack = 0
         cetimer = 0
+      end
+      if not buffs.soulfire.active then
+        cestack = tostring(cestack .. "-ready")
       end
       if buffs.ruin.active then
         ruinactive = "active"
@@ -820,7 +820,6 @@ end
       local sunbar, width, height = bolt.createsurfacefrompng(gamagic .. "sunshine.sunbar")
       local tsubar, width, height = bolt.createsurfacefrompng(gamagic .. "tsunami.tsunamibar")
       local as, width, height = bolt.createsurfacefrompng(gaspell .. activespell)
-      --print("soulfire " .. tostring(buffs.soulfire.active) .. " " .. tostring(buffs.soulfire.number))
 
       basegauge:drawtoscreen(0, 0, 260, 44, gx, gy, gw, gh)
       barwidth = gw * 0.6
@@ -833,7 +832,7 @@ end
       sun:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
       tsu:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.87), gb - ( 55 * scale / 2), 50 * scale, 50 * scale)
 
-      ce:drawtoscreen(0, 0, 81, 27, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
+      ce:drawtoscreen(0, 0, 60, 20, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
       cebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (13 * scale), cetimer * 5 * scale, 6 * scale)
       btbar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (16 * scale), bttimer * 7.5 * scale, 2 * scale)
       gebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (6 * scale) + (20 * scale), getimer * 7.5 * scale, 2 * scale)
@@ -842,15 +841,15 @@ end
 
       --fsoa:drawtoscreen(0, 0, 32, 32, gx + math.floor(gw * 0.585) - ( 20 * scale), gy - ( 5 * scale / 2), 15 * scale , 15 * scale)
       if buffs.temporalanomaly.active then
-        ta:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        ta:drawtoscreen(0, 0, 25, 25, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
       elseif buffs.animatedead.active then
-        ad:drawtoscreen(0, 0, 85, 85, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        ad:drawtoscreen(0, 0, 25, 25, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
       end
       if buffs.conflagrate.active then
         --conf:drawtoscreen(0, 0, 40, 40, gx + math.floor(gw * 0.75), gy - ( 5 * scale / 2), 20 * scale, 20 * scale)
       end
-      bt:drawtoscreen(0, 0, 64, 64, gx + (2 * scale), gb - ( 11 * scale), 20 * scale * 0.9, 20 * scale)
-      ge:drawtoscreen(0, 0, 64, 64, gx + (30 * scale) + (1 * scale), gb - ( 11 * scale), 20 * scale * 0.9, 20 * scale)
+      bt:drawtoscreen(0, 0, 20, 20, gx - (0 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
+      ge:drawtoscreen(0, 0, 20, 20, gx + (30 * scale) + (0 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
       as:drawtoscreen(0, 0, 150, 150, gx, gy - 8 * scale, 50 * scale, 50 * scale)
     end
     --this is the end for the hidegauge check
