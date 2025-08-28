@@ -491,7 +491,7 @@ local endcheckframe = function (t)
 end
 
 -- setup
-lineprogram = bolt.createshaderprogram(
+local lineprogram = bolt.createshaderprogram(
         bolt.createvertexshader(
       "layout (location = 0) in vec2 vXY;".. -- points from -1 to 1, as needed by opengl to draw a rectangle
       "out vec2 xy;".. -- calculated pixel coordinate of the vertex based on vXY and target_wh
@@ -522,16 +522,18 @@ lineprogram = bolt.createshaderprogram(
         )
       )
       lineprogram:setattribute(0, 1, true, false, 2, 0, 2)
-      linebuffer = bolt.createshaderbuffer("\xFF\xFF\x01\xFF\x01\x01\xFF\xFF\x01\x01\xFF\x01")
+      local linebuffer = bolt.createshaderbuffer("\xFF\xFF\x01\xFF\x01\x01\xFF\xFF\x01\x01\xFF\x01")
       linesurfacesize = 100
-      linesurface = bolt.createsurface(linesurfacesize, linesurfacesize)
+      local sunline = bolt.createsurface(linesurfacesize, linesurfacesize)
+      local tsuline = bolt.createsurface(linesurfacesize, linesurfacesize)
+      local ldline = bolt.createsurface(linesurfacesize, linesurfacesize)
       lineprogram:setuniform2f(0, linesurfacesize, linesurfacesize)
       lineprogram:setuniform4f(2, 224/255, 47/255, 221/255, 1) -- line colour (rgba, 0.0 - 1.0)
       lineprogram:setuniform1f(3, 2) -- line thickness (px)
 
       -- function to redraw the hexagon to the surface
-      updatelinesurface = function (elapsed, maxtime, program, surface, surfacesize)
-        linesurface:clear()
+      local updatelinesurface = function (elapsed, maxtime, program, surface, surfacesize)
+        surface:clear()
         if elapsed > maxtime then return false end
         local surfaceradius = surfacesize / 2
         for i = 1, 6 do
@@ -609,7 +611,7 @@ bolt.onswapbuffers (function (event)
       if buffs.livingdeath.active then
         ldimg = lda
         if not ldmax then
-          ldmax = 3e+7
+          ldmax = 3.06e+7
           ldes = t
         end
         ldel = t - ldes
@@ -713,7 +715,7 @@ bolt.onswapbuffers (function (event)
       if buffs.sunshine.active then
         sunimg = suna
         if not sunmax then
-          sunmax = 3e+7
+          sunmax = 3.06e+7
           sunnew = t - (3e+7 - (buffs.sunshine.number * 1000000))
           sunes = math.min(sunnew, t)
         end
@@ -722,22 +724,10 @@ bolt.onswapbuffers (function (event)
         sunimg = suni
         sunmax = false
       end
-      -- if buffs.sunshine.active then
-      --   sunactive = "active"
-      --   if not sunmax then
-      --     sunmax = 3e+7
-      --     sunes = t
-      --   end
-      --   sunel = t - sunes
-      --   sunel = math.max((sunmax - (buffs.sunshine.number * 1000000)), t - sunes)
-      -- else
-      --   sunactive = "inactive"
-      --   sunmax = false
-      -- end
       if buffs.tsunami.active then
         tsuimg = tsua
         if not tsumax then
-          tsumax = 3e+7
+          tsumax = 3.06e+7
           tsues = t
         end
         tsuel = t - tsues
@@ -821,13 +811,19 @@ bolt.onswapbuffers (function (event)
 
       if buffs.sunshine.active then
         print("adjustment = " .. tostring(sunel) .. " based on:" .. sunmax .. "which is: " .. tostring(sunel / sunmax))
-        updatelinesurface(sunel, sunmax, lineprogram, sunimg, 100)
+        updatelinesurface(sunel, sunmax, lineprogram, sunline, 100)
+      else
+        sunline:clear()
       end
       if buffs.tsunami.active then
-        updatelinesurface(tsuel, tsumax, lineprogram, tsua, 100)
+        updatelinesurface(tsuel, tsumax, lineprogram, tsuline, 100)
+      else
+        tsuline:clear()
       end
       sunimg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
+      sunline:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
       tsuimg:drawtoscreen(0, 0, 100, 100, gx + math.floor(gw * 0.87), gb - ( 55 * scale / 2), 50 * scale, 50 * scale)
+      tsuline:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.87), gb - ( 55 * scale / 2), 50 * scale, 50 * scale)
 
       ceimg:drawtoscreen(0, 0, 60, 20, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
       cebar:drawtoscreen(0, 0, 98, 6, gx + math.floor(gw * 0.2), gy + (13 * scale), cetimer * 5 * scale, 6 * scale)
