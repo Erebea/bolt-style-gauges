@@ -22,15 +22,11 @@ Inside the main.lua file there are a few configurable variables. These are:
 `gy` - Y position of the gauge, Number of pixels from the top
 
 # todo
-Better icons
+Better icons and different styles (more complex style, extremely simplified style, etc)
 
-A bloat timer that isn't a mess and hopefully accurate
-
-Temporal Anomaly procs, playing a sound and hilighting the ability
+Temporal Anomaly procs, playing a sound and hilighting the ability - currently brightens the temporal anomaly icon but nothing else, and roar of awakening resets trigger it as well since they spawn the same 3d animation
 
 Cooldown tracking that looks nice
-
-Soulfire and possibly other bleed reset procs
 
 FSOA tracking
 
