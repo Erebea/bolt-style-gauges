@@ -711,7 +711,7 @@ bolt.onswapbuffers (function (event)
       local ui = images['gauge-ui']
       local mage = ui.magic
 
-      local sunimg = mage.sunshine[buffs.sunshine.active and 'active' or 'inactive']
+      local sunimg = mage.sunshine[(buffs.sunshine.active and 'active') or (buffs.gsunshine.active and 'active') or 'inactive']
       local tsuimg = mage.tsunami[buffs.tsunami.active and 'active' or 'inactive']
 
       local geimg = mage['glacial-embrace'][buffs.incitefear.active and ((buffs.incitefear.parensnumber < 5) and '0' or '5') or '0']
@@ -746,6 +746,11 @@ bolt.onswapbuffers (function (event)
       if bars.sunshine.start ~= nil then
         local elapsed = t - bars.sunshine.start
         updatelinesurface(elapsed, bars.sunshine.max, lineprogram, linesurface, 100)
+        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
+      end
+      if bars.gsunshine.start ~= nil then
+        local elapsed = t - bars.gsunshine.start
+        updatelinesurface(elapsed, bars.gsunshine.max, lineprogram, linesurface, 100)
         linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
       end
 
