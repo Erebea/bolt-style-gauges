@@ -680,7 +680,7 @@ bolt.onswapbuffers (function (event)
       if bars.livingdeath.start ~= nil then
         local elapsed = t - bars.livingdeath.start
         updatelinesurface(elapsed, bars.livingdeath.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.85), gy - (3 * scale), 60 * scale, 60* scale)
+        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.83), gy - (8 * scale), 75 * scale, 75 * scale)
       end
 
       soulsimg.surface:drawtoscreen(0, 0, soulsimg.width, soulsimg.height, gx + math.floor(gw * 0.2) - (2 * scale), gb - (27 * scale), 24 * scale * 5, 24 * scale)
