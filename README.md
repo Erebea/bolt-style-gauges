@@ -11,9 +11,14 @@ Previews:
 ![This is Magic](/assets/preview-magic.png)
 
 # How what
+
+## Installation
+Go to your plugins on bolt and click "Install plugin from updater url", paste https://raw.githubusercontent.com/Erebea/bolt-style-gauges/refs/heads/master/meta.json, and enter
+
+## Configuration
 Inside the main.lua file there are a few configurable variables. These are:
 
-`scale` - Interface scaling value. Every (hopefully) element is sized and positioned in a way that scales with this number, make it higher to scale the entire gauge (useful for 4K res players)
+`scale` - Interface scaling value. Every element is (hopefully) sized and positioned in a way that scales with this number, make it higher to scale the entire gauge (useful for 4K res players)
 
 `intstyle` - Interface style. Options are `modern` and `legacy` (legacy assets have not yet been made, currently would only change the background element that everything else is drawn around)
 
