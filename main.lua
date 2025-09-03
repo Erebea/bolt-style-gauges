@@ -6,13 +6,13 @@ local modules = {
 }
 
 -- interface scaling value
-local scale = 1.3
+local scale = 1
 -- modern or legacy interface, I haven't made legacy assets yet
 local intstyle = "modern"
 -- the width of the gauge
-local gw = 260 * scale
+local gw = 340 * scale
 -- the height of the gauge
-local gh = 44 * scale
+local gh = 60 * scale
 -- x coordinate of the gauge
 local gx = (1920 / 2) - gw
 -- y coordinate of the gauge
@@ -44,6 +44,7 @@ local buffs = {
     threadsoffate = {},
     -- magic
     sunshine = {},
+    gsunshine = {},
     exsanguinate = {},
     incitefear = {},
     tsunami = {},
@@ -56,6 +57,7 @@ local buffs = {
     torment = {},
     soulfire = {},
     instability = {},
+    instabilitycd = {},
 }
 
 local models = {
@@ -179,6 +181,12 @@ local images = {
         ['3-ready'] = true,
         cebar = true,
       },
+      instability = {
+        ready = true,
+        notready = true,
+        active = true,
+        instbar = true,
+      },
       [intname] = true,
     },
   }
@@ -210,8 +218,10 @@ local bars = {
   },
   magic = {
     sunshine = { max = 3.06e+7 },
+    gsunshine = { max = 3.9e+7 },
     tsunami = { max = 3.06e+7 },
     instability = { max = 3e+7 },
+    instabilitycd = { max = 6e+7 },
     incitefear = { max = 2e+7 },
     exsanguinate = { max = 2e+7 },
     corruptionessence = { max = 3e+7 },
@@ -225,9 +235,12 @@ local updatebarlist = function (bars, t)
   for name, bar in pairs(bars) do
     if buffs[name].active then
       if name == 'sunshine' then
-        print(tostring(name))
         if bar.start == nil then
           bar.start = t - (3e+7 - (buffs.sunshine.number * 1000000))
+        end
+      elseif name == 'gsunshine' then
+        if bar.start == nil then
+          bar.start = t - (3.6e+7 - (buffs.gsunshine.number * 1000000))
         end
       else
         if bar.start == nil then
@@ -317,6 +330,10 @@ local rendericonlookup2 = {
     end
     return nil, nil
   end,
+
+  [5652] = function (event)
+    if event:modelvertexcount(2) == 4014 then return buffs.instability, buffs.instabilitycd end
+  end,
 }
 
 local setbuffdetails = function (buff, isvalid, number, parensnumber)
@@ -366,6 +383,8 @@ bolt.onrender2d(function (event)
         if aw == 60 then
           if event:texturecompare(ax, ay + 30, "\x21\x4d\x6c\xff\x25\x55\x74\xff\x28\x5f\x81\xff\x2c\x69\x8c\xff\x2f\x6e\x94\xff\x2d\x67\x90\xff\x27\x5a\x85\xff\x26\x52\x80\xff\x27\x55\x86\xff\x29\x5b\x8c\xff\x2b\x61\x93\xff\x2d\x67\x99\xff\x2f\x6d\x9f\xff\x32\x74\xa7\xff\x36\x7b\xad\xff\x39\x83\xb5\xff\x3a\x8a\xb9\xff\x3b\x9e\xc6\xff\x43\xd3\xe4\xff\x4e\xf3\xf3\xff\x48\xd5\xe4\xff\x41\xb1\xd3\xff\x44\xb2\xd5\xff\x46\xb7\xd8\xff\x47\xc3\xdd\xff\x58\xee\xef\xff\x55\xe1\xea\xff\x47\xc4\xde\xff\x48\xc4\xde\xff\x4d\xd2\xe4\xff\x5e\xf2\xf0\xff\x4f\xd6\xe5\xff\x47\xc2\xdd\xff\x46\xc2\xdc\xff\x56\xde\xe8\xff\x5e\xf3\xf1\xff\x46\xca\xde\xff\x3e\xae\xd1\xff\x3e\xa8\xcd\xff\x3d\xa7\xcc\xff\x45\xca\xde\xff\x4c\xf1\xf3\xff\x43\xd6\xe5\xff\x38\x9b\xc3\xff\x36\x7f\xb3\xff\x34\x79\xac\xff\x2f\x70\xa2\xff\x2c\x68\x9a\xff\x2a\x61\x93\xff\x28\x5a\x8b\xff\x27\x55\x85\xff\x26\x4f\x80\xff\x24\x4c\x7a\xff\x22\x4a\x76\xff\x20\x46\x70\xff\x1e\x41\x69\xff\x1d\x3e\x64\xff\x1c\x3d\x60\xff\x1c\x3e\x5e\xff\x1d\x3e\x5d\xff") then
                     readbuff(buffs.sunshine, true)
+          elseif event:texturecompare(ax, ay + 30, "\x0c\x24\x39\xff\x0c\x29\x3e\xff\x0e\x32\x47\xff\x0f\x3e\x55\xff\x13\x4a\x64\xff\x27\x52\x79\xff\x47\x5f\x97\xff\x5f\x6d\xae\xff\x66\x6d\xb0\xff\x67\x67\xa9\xff\x68\x5f\xa1\xff\x69\x5a\x9a\xff\x6b\x58\x95\xff\x6f\x58\x90\xff\x64\x5a\x79\xff\x17\x39\x53\xff\x08\x33\x53\xff\x09\x38\x59\xff\x0b\x3d\x62\xff\x0e\x44\x6a\xff\x11\x4a\x70\xff\x14\x51\x75\xff\x16\x5a\x7a\xff\x1a\x62\x7d\xff\x1a\x6a\x80\xff\x3e\x8d\x87\xff\x9e\xc8\x7f\xff\xd6\xdc\x66\xff\xcc\xd5\x6a\xff\x82\xb4\x75\xff\x40\x95\x7b\xff\x5c\xa2\x73\xff\xd2\xd9\x6a\xff\xea\xe3\x6d\xff\xc2\xd2\x66\xff\x79\xaf\x62\xff\xba\xce\x61\xff\xef\xe5\x66\xff\xd0\xd7\x5f\xff\x87\xb7\x5f\xff\xb0\xca\x5e\xff\xec\xe4\x66\xff\xdc\xdd\x64\xff\x7b\xb2\x66\xff\x57\xa1\x70\xff\x6e\xad\x6d\xff\xc5\xd2\x66\xff\xe4\xdd\x64\xff\xb5\xcd\x6c\xff\x41\x98\x84\xff\x23\x80\x85\xff\x24\x7a\x85\xff\x22\x73\x84\xff\x1e\x6d\x82\xff\x1b\x65\x7f\xff\x18\x5d\x7c\xff\x15\x55\x77\xff\x12\x4e\x71\xff\x0e\x45\x6b\xff\x0d\x42\x67\xff") then
+                    readbuff(buffs.gsunshine, true)
           elseif event:texturecompare(ax, ay + 30, "\x0e\x12\x2d\xff\x0e\x12\x2d\xff\x06\x15\x23\xff\x07\x12\x1a\xff\x07\x12\x1a\xff\x07\x12\x1a\xff\x06\x15\x23\xff\x0d\x21\x3d\xff\x0e\x2f\x4f\xff\x0e\x2f\x4f\xff\x22\x3e\x50\xff\x0d\x21\x3d\xff\x02\x10\x2d\xff\x02\x10\x2d\xff\x3a\x3c\x52\xff\xb8\x90\x4b\xff\x90\x8c\x69\xff\x8f\x63\x49\xff\x3a\x3c\x52\xff\x77\x4e\x3b\xff\xfb\xba\x7d\xff\xf7\xf2\x2b\xff\xef\xca\x43\xff\xf0\xec\x82\xff\xf7\xf6\xf1\xff\xfb\xfd\xfd\xff\xc7\x76\x5c\xff\x7a\x29\x0d\xff\x7a\x29\x0d\xff\x81\x42\x15\xff\x9e\x43\x16\xff\x9f\x5d\x1f\xff\x9f\x5d\x1f\xff\x95\x2b\x09\xff\x7a\x29\x0d\xff\x7a\x29\x0d\xff\xa4\x71\x57\xff\xce\xd4\xd4\xff\xeb\xe8\xea\xff\xfb\xfd\xfd\xff\xfb\xfd\xfd\xff\xea\xc8\xb2\xff\x60\x17\x08\xff\x2d\x05\x03\xff\x49\x0b\x05\xff\xac\x8c\x69\xff\xf9\xf8\xd8\xff\xf8\xf7\xbb\xff\xf0\xec\x82\xff\xf2\xe7\x60\xff\xf2\xe7\x60\xff\xef\xca\x43\xff\xf2\x9f\x3e\xff\x88\x51\x3a\xff\x1a\x20\x50\xff\x03\x20\x51\xff\x03\x21\x3e\xff\x1e\x31\x4a\xff\x18\x38\x6d\xff\x1a\x20\x50\xff") then
                     readbuff(buffs.ruin, true)
           elseif event:texturecompare(ax, ay + 20, "\x00\x00\x01\x2a\x00\x00\x01\x6e\x3e\x25\x41\xca\x75\x3d\x7e\xfe\x61\x35\x6e\xff\x4e\x2f\x5a\xff\x4e\x2f\x5a\xff\x4f\x31\x66\xff\x4c\x4c\x71\xff\x3d\x49\x8f\xff\x48\x57\xac\xff\x54\xbf\xf9\xff\xc9\xeb\xfc\xff\xfc\xfd\xfc\xff\xfc\xfd\xfc\xff\xe6\xf5\xf9\xff\xa0\xc9\xec\xff\xc9\xeb\xfc\xff\xe6\xf5\xf9\xff\xa0\xc9\xec\xff\x55\x70\xa7\xff\x17\x2e\x31\xff\x0b\x15\x40\xff\x2d\x27\x38\xff\x96\x6f\x6c\xff\xec\xca\xb7\xff\xec\xca\xb7\xff\xec\xca\xb7\xff\xbf\x7a\x71\xff\x51\x18\x14\xff\x20\x0d\x09\xff\x44\x46\x42\xff\xec\xca\xb7\xff\xfc\xfd\xfc\xff\xfb\xef\xe0\xff\xdc\x8a\x6d\xff\x57\x28\x1f\xff\x2b\x17\x2b\xff\x20\x1b\x28\xff\x06\x03\x0c\xff\x0e\x08\x1e\xff\x20\x10\x27\xff\x34\x1a\x32\xff\x4e\x2f\x5a\xff\x4e\x2f\x5a\xff\x3e\x25\x41\xff\x3e\x25\x41\xff\x4e\x2f\x5a\xff\x61\x35\x6e\xff\x61\x35\x6e\xff\x4f\x31\x66\xff\x4e\x2f\x5a\xff\x4f\x31\x66\xff\x4f\x31\x66\xff\x4f\x35\x52\xff\x61\x35\x6e\xff\x75\x3d\x7e\xfe\x3e\x25\x41\xca\x00\x00\x01\x6e\x00\x00\x01\x29") then
@@ -629,16 +648,16 @@ bolt.onswapbuffers (function (event)
 
       local interface = necro[intname]
       interface.surface:drawtoscreen(0, 0, interface.width, interface.height, gx, gy, gw, gh)
-      conjuresimg.surface:drawtoscreen(0, 0, conjuresimg.width, conjuresimg.height, gx, gy - (3 * scale), 50 * scale, 50 * scale)
+      conjuresimg.surface:drawtoscreen(0, 0, conjuresimg.width, conjuresimg.height, gx - (8 * scale), gy - (8 * scale), 75 * scale, 75 * scale)
 
-      dmimg.surface:drawtoscreen(0, 0, dmimg.width, dmimg.height, gm + ( 45 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
+      dmimg.surface:drawtoscreen(0, 0, dmimg.width, dmimg.height, gm + ( 50 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
 
       if buffs.temporalanomaly.active then
-        taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gm + (70 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
+        taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gm + (85 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
       elseif buffs.animatedead.active then
-        adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gm + (70 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
+        adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gm + (85 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
       else
-        dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gm + (70 * scale), gy - (12 * scale), 24 * scale, 24 * scale)
+        dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gm + (85 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
       end
 
       threadsimg.surface:drawtoscreen(0, 0, threadsimg.width, threadsimg.height, gm - (50 * scale), gy - (10 * scale), 20 * scale, 20 * scale)
@@ -646,7 +665,7 @@ bolt.onswapbuffers (function (event)
         local tofbar = necro.incantations['threads-of-fate'].tofbar
         local elapsed = t - bars.threadsoffate.start
         local tofwidth = math.floor(barfill(bars.threadsoffate.max, elapsed, 150) * scale)
-        tofbar.surface:drawtoscreen(0, 0, tofbar.width, tofbar.height, gx + math.floor(gw * 0.2), gy + (25 * scale), tofwidth, 2 * scale)
+        tofbar.surface:drawtoscreen(0, 0, tofbar.width, tofbar.height, gx + math.floor(gw * 0.2), gy + (30 * scale), tofwidth, 3 * scale)
       end
 
       ssimg.surface:drawtoscreen(0, 0, ssimg.width, ssimg.height, gm - (25 * scale), gy - ( 12 * scale), 24 * scale, 24 * scale)
@@ -654,17 +673,17 @@ bolt.onswapbuffers (function (event)
         local ssbar = necro.incantations['split-soul'].ssbar
         local elapsed = t - bars.splitsoul.start
         local sswidth = math.floor(barfill(bars.splitsoul.max, elapsed, 150) * scale)
-        ssbar.surface:drawtoscreen(0, 0, ssbar.width, ssbar.height, gx + math.floor(gw * 0.2), gy + (22 * scale), sswidth, 2 * scale)
+        ssbar.surface:drawtoscreen(0, 0, ssbar.width, ssbar.height, gx + math.floor(gw * 0.2), gy + (24 * scale), sswidth, 3 * scale)
       end
 
-      ldimg.surface:drawtoscreen(0, 0, ldimg.width, ldimg.height, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+      ldimg.surface:drawtoscreen(0, 0, ldimg.width, ldimg.height, gx + math.floor(gw * 0.83), gy - (8 * scale), 75 * scale, 75 * scale)
       if bars.livingdeath.start ~= nil then
         local elapsed = t - bars.livingdeath.start
         updatelinesurface(elapsed, bars.livingdeath.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.85), gy - (3 * scale), 50 * scale, 50* scale)
+        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.83), gy - (8 * scale), 75 * scale, 75 * scale)
       end
 
-      soulsimg.surface:drawtoscreen(0, 0, soulsimg.width, soulsimg.height, gx + math.floor(gw * 0.2) - (2 * scale), gb - (12 * scale), 20 * scale * 5, 20 * scale)
+      soulsimg.surface:drawtoscreen(0, 0, soulsimg.width, soulsimg.height, gx + math.floor(gw * 0.2) - (2 * scale), gb - (27 * scale), 24 * scale * 5, 24 * scale)
 
       local bloat = necro.bloat
       bloat.bloatbg.surface:drawtoscreen(0, 0, bloat.bloatbg.width, bloat.bloatbg.height, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
@@ -678,7 +697,7 @@ bolt.onswapbuffers (function (event)
         ticker.surface:drawtoscreen(0, 0, ticker.width, ticker.height, tickerx, gy + (13 * scale) - (2 * scale), 9 * scale, 10 * scale)
       end
 
-      necrosisimg.surface:drawtoscreen(0, 0, necrosisimg.width, necrosisimg.height, gx + math.floor(gw * 0.2) + (20 * scale * 5) + (16 * scale), gb - ( 16 * scale), 24 * scale * 2, 24 * scale)
+      necrosisimg.surface:drawtoscreen(0, 0, necrosisimg.width, necrosisimg.height, gm + (50 * scale), gy - (16 * scale), 32 * scale * 2, 32 * scale)
 
     elseif cbstyle == "magic" then ---------------------------------------------------- magic
 
@@ -692,7 +711,7 @@ bolt.onswapbuffers (function (event)
       local ui = images['gauge-ui']
       local mage = ui.magic
 
-      local sunimg = mage.sunshine[buffs.sunshine.active and 'active' or 'inactive']
+      local sunimg = mage.sunshine[(buffs.sunshine.active and 'active') or (buffs.gsunshine.active and 'active') or 'inactive']
       local tsuimg = mage.tsunami[buffs.tsunami.active and 'active' or 'inactive']
 
       local geimg = mage['glacial-embrace'][buffs.incitefear.active and ((buffs.incitefear.parensnumber < 5) and '0' or '5') or '0']
@@ -708,59 +727,73 @@ bolt.onswapbuffers (function (event)
       local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
       local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
 
+      local instimg = mage.instability[(buffs.instability.active and 'active') or (not buffs.instabilitycd.active and 'ready') or 'notready']
+
       local interface = mage[intname]
 
       -- elements are actually drawn here
       interface.surface:drawtoscreen(0, 0, interface.width, interface.height, gx, gy, gw, gh)
 
       if buffs.temporalanomaly.active then
-        taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gx + math.floor(gw * 0.70), gy - ( 28 * scale / 2), 30 * scale, 30 * scale)
       elseif buffs.animatedead.active then
-        adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gx + math.floor(gw * 0.70), gy - ( 28 * scale / 2), 30 * scale, 30 * scale)
       elseif buffs.darkness.active then
-        dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gx + math.floor(gw * 0.70), gy - ( 25 * scale / 2), 25 * scale, 25 * scale)
+        dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gx + math.floor(gw * 0.70), gy - ( 28 * scale / 2), 30 * scale, 30 * scale)
       end
 
-      sunimg.surface:drawtoscreen(0, 0, sunimg.width, sunimg.height, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
+      sunimg.surface:drawtoscreen(0, 0, sunimg.width, sunimg.height, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 60 * scale, 60 * scale)
       if bars.sunshine.start ~= nil then
         local elapsed = t - bars.sunshine.start
         updatelinesurface(elapsed, bars.sunshine.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 50 * scale, 50 * scale)
+        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 60 * scale, 60 * scale)
+      end
+      if bars.gsunshine.start ~= nil then
+        local elapsed = t - bars.gsunshine.start
+        updatelinesurface(elapsed, bars.gsunshine.max, lineprogram, linesurface, 100)
+        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 60 * scale, 60 * scale)
       end
 
-      tsuimg.surface:drawtoscreen(0, 0, tsuimg.width, tsuimg.height, gx + math.floor(gw * 0.87), gb - ( 55 * scale / 2), 50 * scale, 50 * scale)
+      tsuimg.surface:drawtoscreen(0, 0, tsuimg.width, tsuimg.height, gx + math.floor(gw * 0.87), gy + ( 22 * scale), 60 * scale, 60 * scale)
       if bars.tsunami.start ~= nil then
         local elapsed = t - bars.tsunami.start
         updatelinesurface(elapsed, bars.tsunami.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.87), gb - ( 55 * scale / 2), 50 * scale, 50 * scale)
+        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.87), gy + ( 22 * scale), 60 * scale, 60 * scale)
       end
 
-      ceimg.surface:drawtoscreen(0, 0, ceimg.width, ceimg.height, gx + math.floor(gw * 0.2), gy - (10 * scale), 20 * scale * 3, 20 * scale)
+      ceimg.surface:drawtoscreen(0, 0, ceimg.width, ceimg.height, gx + math.floor(gw * 0.2), gy - (14 * scale), 27 * scale * 3, 27 * scale)
       if bars.corruptionessence.start ~= nil then
         local cebar = mage['corruption-essence'].cebar
         local elapsed = bars.corruptionessence.max - (buffs.corruptionessence.number * 1000000)
-        local width = math.floor(barfill(bars.corruptionessence.max, elapsed, 150) * scale)
-        cebar.surface:drawtoscreen(0, 0, cebar.width, cebar.height, gx + math.floor(gw * 0.2), gy + (13 * scale), width, 6 * scale)
+        local width = math.floor(barfill(bars.corruptionessence.max, elapsed, 180) * scale)
+        cebar.surface:drawtoscreen(0, 0, cebar.width, cebar.height, gx + math.floor(gw * 0.2), gy + (18 * scale), width, 6 * scale)
       end
 
-      btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, gx - (0 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
+      btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, gx + (-2 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
       if bars.exsanguinate.start ~= nil then
         local btbar = mage['blood-tithe'].btbar
         local elapsed = bars.exsanguinate.max - (buffs.exsanguinate.number * 1000000)
-        local width = math.floor(barfill(bars.exsanguinate.max, elapsed, 150) * scale)
-        btbar.surface:drawtoscreen(0, 0, btbar.width, btbar.height, gx + math.floor(gw * 0.2), gy + (6 * scale) + (16 * scale), width, 2 * scale)
+        local width = math.floor(barfill(bars.exsanguinate.max, elapsed, 180) * scale)
+        btbar.surface:drawtoscreen(0, 0, btbar.width, btbar.height, gx + math.floor(gw * 0.2), gy + (8 * scale) + (22 * scale), width, 3 * scale)
       end
-      
 
-      geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, gx + (30 * scale) + (0 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
+      geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, gx + (42 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
       if bars.incitefear.start ~= nil then
         local gebar = mage['glacial-embrace'].gebar
         local elapsed = bars.incitefear.max - (buffs.incitefear.number * 1000000)
-        local width = math.floor(barfill(bars.incitefear.max, elapsed, 150) * scale)
-        gebar.surface:drawtoscreen(0, 0, gebar.width, gebar.height, gx + math.floor(gw * 0.2), gy + (6 * scale) + (20 * scale), width, 2 * scale)
+        local width = math.floor(barfill(bars.incitefear.max, elapsed, 180) * scale)
+        gebar.surface:drawtoscreen(0, 0, gebar.width, gebar.height, gx + math.floor(gw * 0.2), gy + (6 * scale) + (28 * scale), width, 3 * scale)
       end
 
-      asimg.surface:drawtoscreen(0, 0, asimg.width, asimg.height, gx, gy - 8 * scale, 50 * scale, 50 * scale)
+      instimg.surface:drawtoscreen(0, 0, instimg.width, instimg.height, gx + math.floor(gw * 0.75), gb - ( 25 * scale), 32 * scale, 32 * scale)
+      if bars.instability.start ~= nil then
+        local instbar = mage.instability.instbar
+        local elapsed = t - bars.instability.start
+        local width = math.floor(barfill(bars.instability.max, elapsed, 180) * scale)
+        instbar.surface:drawtoscreen(0, 0, instbar.width, instbar.height, gx + math.floor(gw * 0.2), gy + (6 * scale) + (34 * scale), width, 3 * scale)
+      end
+
+      asimg.surface:drawtoscreen(0, 0, asimg.width, asimg.height, gx - (7 * scale), gy - (12 * scale), 75 * scale, 75 * scale)
     end
 --this is the end for the onswapbuffers event
 end
