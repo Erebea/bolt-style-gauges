@@ -1,34 +1,35 @@
-local bolt = require("bolt")
+bolt = require("bolt")
 bolt.checkversion(1, 0)
 
-local modules = {
+modules = {
   buffs = require("modules.buffs.buffs"),
 }
-
 -- interface scaling value
-local scale = 1
+scale = 1
 -- modern or legacy interface, I haven't made legacy assets yet
-local intstyle = "modern"
+intstyle = "modern-condensed"
 -- the width of the gauge
-local gw = 340 * scale
+gw = 340 * scale
 -- the height of the gauge
-local gh = 60 * scale
+gh = 60 * scale
 -- x coordinate of the gauge
-local gx = (1920 / 2) - gw
+gx = (1920 / 2) - gw
 -- y coordinate of the gauge
-local gy = 530
+gy = 530
     -- middle position of the gauge
-local gm = gx + ( gw / 2)
+gm = gx + ( gw / 2)
+    --vertical middle of the gauge
+gv = gy + (gh / 2)
     -- bottom of the gauge
-local gb = gy + gh
+gb = gy + gh
     -- right of the gauge
-local gr = gx + gw
+gr = gx + gw
 
-local cbstyle = "none"
-local hidegauge = false
-local intname = intstyle .. '-base'
+cbstyle = "necromancy"
+hidegauge = false
+intname = intstyle .. '-base'
 
-local buffs = {
+buffs = {
     -- necromancy
     darkness = {},
     necrosis = {},
@@ -60,11 +61,11 @@ local buffs = {
     instabilitycd = {},
 }
 
-local models = {
+models = {
   temporalanomaly = { center = bolt.point(0, 200,0), boxsize = 500, boxthickness = 100},
 }
 
-local elements = {
+elements = {
   bank = {},
   central = {},
   lobby = {},
@@ -75,120 +76,248 @@ for _, model in pairs(models) do
 end
 
 -- table of png images ("true" is used as a placeholder value for each one)
-local images = {
+images = {
   interface = {
     legacy = { ticker = true, },
     modern = { ticker = true, },
   },
   ['gauge-ui'] = {
-    aspects = {
-      darkness = {
-        active = true,
-        inactive = true,
-        },
-      ['animate-dead'] = {
-        active = true,
-      },
-      ['temporal-anomaly'] = {
-        active = true,
-        ['ta-activate'] = true,
-      },
-    },
-    necromancy = {
-      incantations = {
-        ['threads-of-fate'] = {
+
+    default = {
+      aspects = {
+        darkness = {
           active = true,
           inactive = true,
-          tofbar = true,
+          },
+        ['animate-dead'] = {
+          active = true,
         },
-        ['split-soul'] = {
+        ['temporal-anomaly'] = {
+          active = true,
+          ['ta-activate'] = true,
+        },
+      },
+      necromancy = {
+        incantations = {
+          ['threads-of-fate'] = {
+            active = true,
+            inactive = true,
+            tofbar = true,
+          },
+          ['split-soul'] = {
+            active = true,
+            inactive = true,
+            ssbar = true,
+          },
+          ['invoke-death'] = {
+            active = true,
+            inactive = true,
+          },
+        },
+        ['conjure-undead-army'] = {
           active = true,
           inactive = true,
-          ssbar = true,
         },
-        ['invoke-death'] = {
+        ['residual-souls'] = {
+          [0] = true,
+          [1] = true,
+          [2] = true,
+          [3] = true,
+          [4] = true,
+          [5] = true,
+        },
+        ['living-death'] = {
+          active = true,
+          inactive = true,
+          ldbar = true,
+        },
+        bloat = {
+          bloatbar = true,
+          bloatbg = true,
+          bloatframe = true,
+        },
+        necrosis = {
+          [0] = true,
+          [2] = true,
+          [4] = true,
+          [6] = true,
+          [8] = true,
+          [10] = true,
+          [12] = true,
+        },
+        [intname] = true,
+      },
+      magic = {
+        ['active-spell'] = {
+          ['no-spell'] = true,
+          ['exsanguinate'] = true,
+          ['incite-fear'] = true,
+        },
+        sunshine = {
+          active = true,
+          inactive = true,
+          sunbar = true,
+        },
+        tsunami = {
+          active = true,
+          inactive = true,
+          tsunamibar = true,
+        },
+        ['glacial-embrace'] = {
+          ['0'] = true,
+          ['5'] = true,
+          gebar = true,
+        },
+        ['blood-tithe'] = {
+          ['0'] = true,
+          ['12'] = true,
+          btbar = true,
+        },
+        ['corruption-essence'] = {
+          ['0'] = true,
+          ['1'] = true,
+          ['2'] = true,
+          ['3'] = true,
+          ['0-ready'] = true,
+          ['1-ready'] = true,
+          ['2-ready'] = true,
+          ['3-ready'] = true,
+          cebar = true,
+        },
+        instability = {
+          ready = true,
+          notready = true,
+          active = true,
+          instbar = true,
+        },
+        [intname] = true,
+      },
+    },
+
+    ['modern-condensed'] = {
+      aspects = {
+        darkness = {
+          active = true,
+          inactive = false,
+          },
+        ['animate-dead'] = {
+          active = true,
+        },
+        ['temporal-anomaly'] = {
+          active = true,
+          ['ta-activate'] = true,
+        },
+      },
+      necromancy = {
+        incantations = {
+          ['threads-of-fate'] = {
+            active = true,
+            inactive = true,
+            tofbar = true,
+          },
+          ['split-soul'] = {
+            active = true,
+            inactive = true,
+            ssbar = true,
+          },
+          ['invoke-death'] = {
+            active = true,
+            inactive = true,
+          },
+        },
+        ['conjure-undead-army'] = {
           active = true,
           inactive = true,
         },
+        ['residual-souls'] = {
+          [0] = true,
+          [1] = true,
+          [2] = true,
+          [3] = true,
+          [4] = true,
+          [5] = true,
+        },
+        ['living-death'] = {
+          active = true,
+          inactive = true,
+          ldbar = true,
+        },
+        bloat = {
+          bloatbar = true,
+          bloatbg = true,
+          bloatframe = true,
+        },
+        necrosis = {
+          [0] = true,
+          [2] = true,
+          [4] = true,
+          [6] = true,
+          [8] = true,
+          [10] = true,
+          [12] = true,
+        },
+        [intname] = true,
       },
-      ['conjure-undead-army'] = {
-        active = true,
-        inactive = true,
+      magic = {
+        ['active-spell'] = {
+          ['no-spell'] = true,
+          ['exsanguinate'] = true,
+          ['incite-fear'] = true,
+          ['exsanguinate2'] = true,
+          ['incite-fear2'] = true,
+          ['ice-barrage'] = true,
+          ['blood-barrage'] = true,
+        },
+        sunshine = {
+          icon = true,
+          bg = true,
+          text = true,
+          bar = true,
+          barbg = true,
+          sunbar = true,
+        },
+        tsunami = {
+          icon = true,
+          bg = true,
+          text = true,
+          bar = true,
+          barbg = true,
+          tsubar = true,
+        },
+        ['glacial-embrace'] = {
+          ['0'] = true,
+          ['5'] = true,
+          gebar = true,
+          gebarbg = true,
+        },
+        ['blood-tithe'] = {
+          ['0'] = true,
+          ['12'] = true,
+          btbar = true,
+          btbarbg = true,
+        },
+        ['corruption-essence'] = {
+          ['0'] = true,
+          ['1'] = true,
+          ['2'] = true,
+          ['3'] = true,
+          ['0-ready'] = true,
+          ['1-ready'] = true,
+          ['2-ready'] = true,
+          ['3-ready'] = true,
+          cebar = true,
+          cebarframe = true,
+          cebarbg = true,
+        },
+        instability = {
+          icon = true,
+          bg = true,
+          text = true,
+          bar = true,
+          barbg = true,
+        },
       },
-      ['residual-souls'] = {
-        [0] = true,
-        [1] = true,
-        [2] = true,
-        [3] = true,
-        [4] = true,
-        [5] = true,
-      },
-      ['living-death'] = {
-        active = true,
-        inactive = true,
-        ldbar = true,
-      },
-      bloat = {
-        bloatbar = true,
-        bloatbg = true,
-        bloatframe = true,
-      },
-      necrosis = {
-        [0] = true,
-        [2] = true,
-        [4] = true,
-        [6] = true,
-        [8] = true,
-        [10] = true,
-        [12] = true,
-      },
-      [intname] = true,
-    },
-    magic = {
-      ['active-spell'] = {
-        ['no-spell'] = true,
-        ['exsanguinate'] = true,
-        ['incite-fear'] = true,
-      },
-      sunshine = {
-        active = true,
-        inactive = true,
-        sunbar = true,
-      },
-      tsunami = {
-        active = true,
-        inactive = true,
-        tsunamibar = true,
-      },
-      ['glacial-embrace'] = {
-        ['0'] = true,
-        ['5'] = true,
-        gebar = true,
-      },
-      ['blood-tithe'] = {
-        ['0'] = true,
-        ['12'] = true,
-        btbar = true,
-      },
-      ['corruption-essence'] = {
-        ['0'] = true,
-        ['1'] = true,
-        ['2'] = true,
-        ['3'] = true,
-        ['0-ready'] = true,
-        ['1-ready'] = true,
-        ['2-ready'] = true,
-        ['3-ready'] = true,
-        cebar = true,
-      },
-      instability = {
-        ready = true,
-        notready = true,
-        active = true,
-        instbar = true,
-      },
-      [intname] = true,
-    },
+    }
   }
 }
 
@@ -209,7 +338,7 @@ local images = {
 end)(images)
 
 -- table of bars that may appear on the gauge
-local bars = {
+bars = {
   necromancy = {
     livingdeath = { max = 3e+7 },
     threadsoffate = { max = 6.6e+6 },
@@ -228,10 +357,8 @@ local bars = {
   },
 }
 
-local ask
-
 -- updates the "start" variable of each bar according to buffs table, setting it to "t" if it becomes active
-local updatebarlist = function (bars, t)
+updatebarlist = function (bars, t)
   for name, bar in pairs(bars) do
     if buffs[name].active then
       if name == 'sunshine' then
@@ -253,15 +380,15 @@ local updatebarlist = function (bars, t)
   end
 end
 
-local checkframe = false
-local checktime = bolt.time()
-local checkinterval = 50000 -- read the screen 20 times per second
-local nextrender2dbuff = nil
-local nextrender2ddebuff = nil
-local nextrender2dpxleft = 0
-local nextrender2dpxtop = 0
+checkframe = false
+checktime = bolt.time()
+checkinterval = 50000 -- read the screen 20 times per second
+nextrender2dbuff = nil
+nextrender2ddebuff = nil
+nextrender2dpxleft = 0
+nextrender2dpxtop = 0
 
-local barfill = function (dest, el, max)
+barfill = function (dest, el, max)
   local perc = (dest - el) / dest
   return math.max(0, math.min(max, max * perc))
 end
@@ -271,17 +398,17 @@ for name, buff in pairs(buffs) do
   buff.active = false
 end
 
-local rgbaleniency = 2.5 / 255.0
+rgbaleniency = 2.5 / 255.0
 
 -- compares rgb 0-1 to target values using a leniency value
-local function rougheqrgb (r, g, b, tr, tg, tb)
+function rougheqrgb (r, g, b, tr, tg, tb)
   return math.abs(r - (tr / 255.0)) <= rgbaleniency and math.abs(g - (tg / 255.0)) <= rgbaleniency and math.abs(b - (tb / 255.0)) <= rgbaleniency
 end
 
-local any3dobjectexists = false
-local any3dobjectfound = false
+any3dobjectexists = false
+any3dobjectfound = false
 
-local render3dlookup = {
+render3dlookup = {
   [600] = function (event)
     -- temporal anomaly
     local anim = event:animated()
@@ -291,13 +418,13 @@ local render3dlookup = {
   end,
 }
 
-local rendericonlookup1godbookmatch = function (event)
+rendericonlookup1godbookmatch = function (event)
   local x, y, z = event:modelvertexpoint(1, 1):get()
   if x == -7 and y == 67 and z == 81 then return buffs.godbook, nil end
   return nil, nil
 end
 
-local rendericonlookup1 = {
+rendericonlookup1 = {
 
   [2811] = function (event)
     local x, y, z = event:modelvertexpoint(1, 1):get()
@@ -317,7 +444,7 @@ local rendericonlookup1 = {
   [2856] = rendericonlookup1godbookmatch, -- elidinis
 }
 
-local rendericonlookup2 = {
+rendericonlookup2 = {
   [24] = function (event)
     -- note: perfect plus and supreme overload have the same icon, so we can't distinguish them.
     -- here we assume the icon is a perfect plus potion since those are far more popular/useful.
@@ -336,7 +463,7 @@ local rendericonlookup2 = {
   end,
 }
 
-local setbuffdetails = function (buff, isvalid, number, parensnumber)
+setbuffdetails = function (buff, isvalid, number, parensnumber)
   if isvalid then
     buff.number = number
     buff.parensnumber = parensnumber
@@ -345,7 +472,7 @@ local setbuffdetails = function (buff, isvalid, number, parensnumber)
   end
 end
 
-local setuidetails = function (element, exists, x, y)
+setuidetails = function (element, exists, x, y)
   if x then
     element.x = x
     element.y = y
@@ -508,7 +635,7 @@ bolt.onrendericon(function (event)
   end
 end)
 
-local startcheckframe = function (t)
+startcheckframe = function (t)
   for _, buff in pairs(buffs) do
     buff.foundoncheckframe = false
   end
@@ -520,7 +647,7 @@ local startcheckframe = function (t)
   end
 end
 
-local endcheckframe = function (t)
+endcheckframe = function (t)
   for _, buff in pairs(buffs) do
     if not buff.foundoncheckframe then
       buff.active = false
@@ -534,7 +661,7 @@ local endcheckframe = function (t)
 end
 
 -- setup
-local lineprogram = bolt.createshaderprogram(
+lineprogram = bolt.createshaderprogram(
   bolt.createvertexshader(
 "layout (location = 0) in vec2 vXY;".. -- points from -1 to 1, as needed by opengl to draw a rectangle
 "out vec2 xy;".. -- calculated pixel coordinate of the vertex based on vXY and target_wh
@@ -565,16 +692,16 @@ local lineprogram = bolt.createshaderprogram(
   )
 )
 lineprogram:setattribute(0, 1, true, false, 2, 0, 2)
-local linebuffer = bolt.createshaderbuffer("\xFF\xFF\x01\xFF\x01\x01\xFF\xFF\x01\x01\xFF\x01")
-local linesurfacesize = 100
-local linesurface = bolt.createsurface(linesurfacesize, linesurfacesize)
+linebuffer = bolt.createshaderbuffer("\xFF\xFF\x01\xFF\x01\x01\xFF\xFF\x01\x01\xFF\x01")
+linesurfacesize = 100
+linesurface = bolt.createsurface(linesurfacesize, linesurfacesize)
 
 lineprogram:setuniform2f(0, linesurfacesize, linesurfacesize)
 lineprogram:setuniform4f(2, 224/255, 47/255, 221/255, 1) -- line colour (rgba, 0.0 - 1.0)
 lineprogram:setuniform1f(3, 3) -- line thickness (px)
 
 -- function to redraw the hexagon to the surface
-local updatelinesurface = function (elapsed, maxtime, program, surface, surfacesize)
+updatelinesurface = function (elapsed, maxtime, program, surface, surfacesize)
   surface:clear()
   if elapsed > maxtime then return false end
   local surfaceradius = surfacesize / 2
@@ -602,7 +729,7 @@ local updatelinesurface = function (elapsed, maxtime, program, surface, surfaces
 end
 
 bolt.onswapbuffers (function (event)
-  local t = bolt.time()
+  t = bolt.time()
   if checkframe then
     endcheckframe(t)
     checkframe = false
@@ -624,176 +751,17 @@ bolt.onswapbuffers (function (event)
     elseif buffs.sunshine.active or buffs.torment.active then
       cbstyle = "magic"
     end
-
+    -- package.loaded["gauges.necromancy_" .. intstyle] = nil
+    -- package.loaded["gauges.magic_" .. intstyle] = nil
     if cbstyle == "none" then
       return
     elseif cbstyle == "necromancy" then ----------------------------------------------- necromancy
-      lineprogram:setuniform4f(2, 224/255, 47/255, 221/255, 1) -- line colour (rgba, 0.0 - 1.0)
-
-      local bars = bars.necromancy
-      updatebarlist(bars, t)
-
-      local ui = images['gauge-ui']
-      local necro = ui.necromancy
-      local necrosisimg = necro.necrosis[buffs.necrosis.active and buffs.necrosis.number or 0]
-      local conjuresimg = necro['conjure-undead-army'][(buffs.skeletonwarrior.active and buffs.vengefulghost.active and buffs.putridzombie.active and buffs.phantomguardian.active) and 'active' or 'inactive']
-      local soulsimg = necro['residual-souls'][buffs.residualsouls.active and ((buffs.residualsouls.parensnumber ~= nil) and buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0]
-      local ldimg = necro['living-death'][buffs.livingdeath.active and 'active' or 'inactive']
-      local threadsimg = necro.incantations['threads-of-fate'][buffs.threadsoffate.active and 'active' or 'inactive']
-      local ssimg = necro.incantations['split-soul'][buffs.splitsoul.active and 'active' or 'inactive']
-      local dmimg = necro.incantations['invoke-death'][buffs.deathmark.active and 'active' or 'inactive']
-      local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
-      local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
-      local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
-
-      local interface = necro[intname]
-      interface.surface:drawtoscreen(0, 0, interface.width, interface.height, gx, gy, gw, gh)
-      conjuresimg.surface:drawtoscreen(0, 0, conjuresimg.width, conjuresimg.height, gx - (8 * scale), gy - (8 * scale), 75 * scale, 75 * scale)
-
-      dmimg.surface:drawtoscreen(0, 0, dmimg.width, dmimg.height, gm + ( 50 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
-
-      if buffs.temporalanomaly.active then
-        taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gm + (85 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
-      elseif buffs.animatedead.active then
-        adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gm + (85 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
-      else
-        dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gm + (85 * scale), gb - (25 * scale), 30 * scale, 30 * scale)
-      end
-
-      threadsimg.surface:drawtoscreen(0, 0, threadsimg.width, threadsimg.height, gm - (50 * scale), gy - (10 * scale), 20 * scale, 20 * scale)
-      if bars.threadsoffate.start ~= nil then
-        local tofbar = necro.incantations['threads-of-fate'].tofbar
-        local elapsed = t - bars.threadsoffate.start
-        local tofwidth = math.floor(barfill(bars.threadsoffate.max, elapsed, 150) * scale)
-        tofbar.surface:drawtoscreen(0, 0, tofbar.width, tofbar.height, gx + math.floor(gw * 0.2), gy + (30 * scale), tofwidth, 3 * scale)
-      end
-
-      ssimg.surface:drawtoscreen(0, 0, ssimg.width, ssimg.height, gm - (25 * scale), gy - ( 12 * scale), 24 * scale, 24 * scale)
-      if bars.splitsoul.start ~= nil then
-        local ssbar = necro.incantations['split-soul'].ssbar
-        local elapsed = t - bars.splitsoul.start
-        local sswidth = math.floor(barfill(bars.splitsoul.max, elapsed, 150) * scale)
-        ssbar.surface:drawtoscreen(0, 0, ssbar.width, ssbar.height, gx + math.floor(gw * 0.2), gy + (24 * scale), sswidth, 3 * scale)
-      end
-
-      ldimg.surface:drawtoscreen(0, 0, ldimg.width, ldimg.height, gx + math.floor(gw * 0.83), gy - (8 * scale), 75 * scale, 75 * scale)
-      if bars.livingdeath.start ~= nil then
-        local elapsed = t - bars.livingdeath.start
-        updatelinesurface(elapsed, bars.livingdeath.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.83), gy - (8 * scale), 75 * scale, 75 * scale)
-      end
-
-      soulsimg.surface:drawtoscreen(0, 0, soulsimg.width, soulsimg.height, gx + math.floor(gw * 0.2) - (2 * scale), gb - (27 * scale), 24 * scale * 5, 24 * scale)
-
-      local bloat = necro.bloat
-      bloat.bloatbg.surface:drawtoscreen(0, 0, bloat.bloatbg.width, bloat.bloatbg.height, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
-      bloat.bloatframe.surface:drawtoscreen(0, 0, bloat.bloatframe.width, bloat.bloatframe.height, gx + math.floor(gw * 0.2) - (2 * scale), gy + (13 * scale) - (2 * scale), 154 * scale, 12 * scale)
-      if bars.bloat.start then
-        local ticker = images.interface[intstyle].ticker
-        local elapsed = t - bars.bloat.start
-        local bloatbarwidth = math.floor(barfill(bars.bloat.max, elapsed, 150) * scale)
-        local tickerx = gx + math.floor(gw * 0.2) + bloatbarwidth - (7 * scale)
-        bloat.bloatbar.surface:drawtoscreen(0, 0, bloat.bloatbar.width, bloat.bloatbar.height, gx + math.floor(gw * 0.2), gy + (14 * scale), bloatbarwidth, 6 * scale)
-        ticker.surface:drawtoscreen(0, 0, ticker.width, ticker.height, tickerx, gy + (13 * scale) - (2 * scale), 9 * scale, 10 * scale)
-      end
-
-      necrosisimg.surface:drawtoscreen(0, 0, necrosisimg.width, necrosisimg.height, gm + (50 * scale), gy - (16 * scale), 32 * scale * 2, 32 * scale)
+      require("gauges.necromancy_" .. intstyle)
+      drawgauge()
 
     elseif cbstyle == "magic" then ---------------------------------------------------- magic
-
-
-      lineprogram:setuniform4f(2, 207/255, 251/255, 236/255, 1) -- line colour (rgba, 0.0 - 1.0)
-
-      -- set up elements
-      local bars = bars.magic
-      updatebarlist(bars, t)
-
-      local ui = images['gauge-ui']
-      local mage = ui.magic
-
-      local sunimg = mage.sunshine[(buffs.sunshine.active and 'active') or (buffs.gsunshine.active and 'active') or 'inactive']
-      local tsuimg = mage.tsunami[buffs.tsunami.active and 'active' or 'inactive']
-
-      local geimg = mage['glacial-embrace'][buffs.incitefear.active and ((buffs.incitefear.parensnumber < 5) and '0' or '5') or '0']
-
-      local btimg = mage['blood-tithe'][buffs.exsanguinate.active and ((buffs.exsanguinate.parensnumber < 12) and '0' or '12') or '0']
-
-      ask = (buffs.exsanguinate.number == 20 and 'exsanguinate') or (buffs.incitefear.number == 20 and 'incite-fear') or (ask or 'no-spell')
-      local asimg = mage['active-spell'][ask]
-
-      local ceimg = mage['corruption-essence'][((not buffs.corruptionessence.active and '0') or (buffs.corruptionessence.parensnumber < 1 and '0') or (buffs.corruptionessence.parensnumber < 25 and '1') or (buffs.corruptionessence.parensnumber < 50 and '2') or '3') .. (not buffs.soulfire.active and "-ready" or "")]
-
-      local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active']
-      local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
-      local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
-
-      local instimg = mage.instability[(buffs.instability.active and 'active') or (not buffs.instabilitycd.active and 'ready') or 'notready']
-
-      local interface = mage[intname]
-
-      -- elements are actually drawn here
-      interface.surface:drawtoscreen(0, 0, interface.width, interface.height, gx, gy, gw, gh)
-
-      if buffs.temporalanomaly.active then
-        taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gx + math.floor(gw * 0.70), gy - ( 28 * scale / 2), 30 * scale, 30 * scale)
-      elseif buffs.animatedead.active then
-        adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gx + math.floor(gw * 0.70), gy - ( 28 * scale / 2), 30 * scale, 30 * scale)
-      elseif buffs.darkness.active then
-        dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gx + math.floor(gw * 0.70), gy - ( 28 * scale / 2), 30 * scale, 30 * scale)
-      end
-
-      sunimg.surface:drawtoscreen(0, 0, sunimg.width, sunimg.height, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 60 * scale, 60 * scale)
-      if bars.sunshine.start ~= nil then
-        local elapsed = t - bars.sunshine.start
-        updatelinesurface(elapsed, bars.sunshine.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 60 * scale, 60 * scale)
-      end
-      if bars.gsunshine.start ~= nil then
-        local elapsed = t - bars.gsunshine.start
-        updatelinesurface(elapsed, bars.gsunshine.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.79), gy - ( 45 * scale / 2), 60 * scale, 60 * scale)
-      end
-
-      tsuimg.surface:drawtoscreen(0, 0, tsuimg.width, tsuimg.height, gx + math.floor(gw * 0.87), gy + ( 22 * scale), 60 * scale, 60 * scale)
-      if bars.tsunami.start ~= nil then
-        local elapsed = t - bars.tsunami.start
-        updatelinesurface(elapsed, bars.tsunami.max, lineprogram, linesurface, 100)
-        linesurface:drawtoscreen(0, 0, linesurfacesize, linesurfacesize, gx + math.floor(gw * 0.87), gy + ( 22 * scale), 60 * scale, 60 * scale)
-      end
-
-      ceimg.surface:drawtoscreen(0, 0, ceimg.width, ceimg.height, gx + math.floor(gw * 0.2), gy - (14 * scale), 27 * scale * 3, 27 * scale)
-      if bars.corruptionessence.start ~= nil then
-        local cebar = mage['corruption-essence'].cebar
-        local elapsed = bars.corruptionessence.max - (buffs.corruptionessence.number * 1000000)
-        local width = math.floor(barfill(bars.corruptionessence.max, elapsed, 180) * scale)
-        cebar.surface:drawtoscreen(0, 0, cebar.width, cebar.height, gx + math.floor(gw * 0.2), gy + (18 * scale), width, 6 * scale)
-      end
-
-      btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, gx + (-2 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
-      if bars.exsanguinate.start ~= nil then
-        local btbar = mage['blood-tithe'].btbar
-        local elapsed = bars.exsanguinate.max - (buffs.exsanguinate.number * 1000000)
-        local width = math.floor(barfill(bars.exsanguinate.max, elapsed, 180) * scale)
-        btbar.surface:drawtoscreen(0, 0, btbar.width, btbar.height, gx + math.floor(gw * 0.2), gy + (8 * scale) + (22 * scale), width, 3 * scale)
-      end
-
-      geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, gx + (42 * scale), gb - ( 15 * scale), 20 * scale, 20 * scale)
-      if bars.incitefear.start ~= nil then
-        local gebar = mage['glacial-embrace'].gebar
-        local elapsed = bars.incitefear.max - (buffs.incitefear.number * 1000000)
-        local width = math.floor(barfill(bars.incitefear.max, elapsed, 180) * scale)
-        gebar.surface:drawtoscreen(0, 0, gebar.width, gebar.height, gx + math.floor(gw * 0.2), gy + (6 * scale) + (28 * scale), width, 3 * scale)
-      end
-
-      instimg.surface:drawtoscreen(0, 0, instimg.width, instimg.height, gx + math.floor(gw * 0.75), gb - ( 25 * scale), 32 * scale, 32 * scale)
-      if bars.instability.start ~= nil then
-        local instbar = mage.instability.instbar
-        local elapsed = t - bars.instability.start
-        local width = math.floor(barfill(bars.instability.max, elapsed, 180) * scale)
-        instbar.surface:drawtoscreen(0, 0, instbar.width, instbar.height, gx + math.floor(gw * 0.2), gy + (6 * scale) + (34 * scale), width, 3 * scale)
-      end
-
-      asimg.surface:drawtoscreen(0, 0, asimg.width, asimg.height, gx - (7 * scale), gy - (12 * scale), 75 * scale, 75 * scale)
+      require("gauges.magic_" .. intstyle)
+      drawgauge()
     end
 --this is the end for the onswapbuffers event
 end
