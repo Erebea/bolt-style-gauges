@@ -11,7 +11,23 @@ drawgauge = function ()
   local sunimg = mage.sunshine[(buffs.sunshine.active and 'active') or (buffs.gsunshine.active and 'active') or 'inactive']
   local tsuimg = mage.tsunami[buffs.tsunami.active and 'active' or 'inactive']
 
-  local geimg = mage['glacial-embrace'][buffs.incitefear.active and ((buffs.incitefear.parensnumber < 5) and '0' or '5') or '0']
+local geimg_key
+if buffs.incitefear.active then
+  if buffs.incitefear.parensnumber < 5 then
+    geimg_key = '0'
+  else
+    if not buffs.incitefear.active then
+      geimg_key = 'ready'
+    else
+      geimg_key = '5'
+    end
+  end
+else
+  geimg_key = '0'
+end
+
+-- Use the determined key to get the image
+local geimg = mage['glacial-embrace'][geimg_key]
   local gebarbg = mage['glacial-embrace'].gebarbg
 
   local btimg = mage['blood-tithe'][buffs.exsanguinate.active and ((buffs.exsanguinate.parensnumber < 12) and '0' or '12') or '0']
@@ -53,6 +69,10 @@ drawgauge = function ()
     local elapsed = t - bars.sunshine.start
     local width = math.floor(barfill(bars.sunshine.max, elapsed, 216) * scale)
     sunbar.surface:drawtoscreen(0, 0, sunbar.width, sunbar.height, gm - (101 * scale), gv - ((8 + 7) * scale), width, 16 * scale)
+    local nums = images['gauge-ui'].digits
+    local digit1, digit2 = numparse(buffs.sunshine.number, nums.width / 10)
+    nums.surface:drawtoscreen(digit1, 0, nums.width / 10, nums.height, gm + (30 * scale), gv - ((8 + 12) * scale), nums.width / 10 * scale, nums.height * scale)
+    nums.surface:drawtoscreen(digit2, 0, nums.width / 10, nums.height, gm + (30 + (nums.width / 10) * scale), gv - ((8 + 12) * scale), nums.width / 10 * scale, nums.height * scale)
   end
   if bars.gsunshine.start ~= nil then
     local sunbar = mage.sunshine.sunbar
@@ -69,7 +89,7 @@ drawgauge = function ()
   end
 
   btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, gm - (12 * scale), gv + (8 * scale), btimg.width * scale, btimg.height * scale)
-  btbarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm - ((13 + 55) * scale), gv + (18 * scale), btbarbg.width * scale, btbarbg.height * scale)
+--  btbarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm - ((13 + 55) * scale), gv + (18 * scale), btbarbg.width, btbarbg.height * scale)
   if bars.exsanguinate.start ~= nil then
     local btbar = mage['blood-tithe'].btbar
     local elapsed = bars.exsanguinate.max - (buffs.exsanguinate.number * 1000000)
@@ -78,7 +98,7 @@ drawgauge = function ()
   end
 
   geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, gm + (12 * scale), gv + (8 * scale), geimg.width * scale, geimg.height * scale)
-  gebarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm + ((13  + 22)* scale), gv + (18 * scale), gebarbg.width * scale, gebarbg.height * scale)
+--  gebarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm + ((13  + 22)* scale), gv + (18 * scale), gebarbg.width * scale, gebarbg.height * scale)
   if bars.incitefear.start ~= nil then
     local gebar = mage['glacial-embrace'].gebar
     local elapsed = bars.incitefear.max - (buffs.incitefear.number * 1000000)
