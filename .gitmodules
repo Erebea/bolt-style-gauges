@@ -1,0 +1,9 @@
+[submodule "modules/popup"]
+	path = modules/popup
+	url = https://codeberg.org/Adamcake/bolt-popupmodule
+[submodule "modules/buffs"]
+	path = modules/buffs
+	url = https://codeberg.org/Adamcake/bolt-buffmodule
+[submodule "modules/chat"]
+	path = modules/chat
+	url = https://codeberg.org/Adamcake/bolt-chatmodule
