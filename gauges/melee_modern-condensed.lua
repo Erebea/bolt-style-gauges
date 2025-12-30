@@ -1,4 +1,4 @@
-drawgauge = function ()
+drawmeleegauge = function ()
 
   local bars = bars.melee
   updatebarlist(bars, t)
@@ -36,18 +36,21 @@ drawgauge = function ()
   local meteorposy = berserkposy
 
   local gbargeposx = gm - lengstacks.width - 12
-  local gbargeposy = berserkposy + 2
+  local gbargeposy = berserkposy + 1
+
+  local aspectposx = gbargeposx + 1
+  local aspectposy = gbargeposy + 24
 
   local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
   local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
   local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
 
   if buffs.temporalanomaly.active then
-    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gm + ((110) * scale), gv - (20 * scale), taimg.width * scale, taimg.height * scale)
+    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx * scale, aspectposy * scale, taimg.width * scale, taimg.height * scale)
   elseif buffs.animatedead.active then
-    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gm + ((110 + 10) * scale), gv - (10 * scale), adimg.width * scale, adimg.height * scale)
+    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx * scale, aspectposy * scale, adimg.width * scale, adimg.height * scale)
   elseif buffs.darkness.active then
-    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gm + ((110 + 10) * scale), gv - (10 * scale), dnessimg.width * scale, dnessimg.height * scale)
+    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx * scale, aspectposy * scale, dnessimg.width * scale, dnessimg.height * scale)
   end
 
   if buffs.frostblades.active then
@@ -86,7 +89,7 @@ drawgauge = function ()
   end
 
   if buffs.gbarge.active then
-    dotbg.surface:drawtoscreen(0, 0, dotbg.width, dotbg.height, (gbargeposx - 1) * scale, (gbargeposy - 1) * scale, dotbg.width * scale, dotbg.height * scale)
+    --dotbg.surface:drawtoscreen(0, 0, dotbg.width, dotbg.height, (gbargeposx - 1) * scale, (gbargeposy - 1) * scale, dotbg.width * scale, dotbg.height * scale)
     gbargeicon.surface:drawtoscreen(0, 0, gbargeicon.width, gbargeicon.height, gbargeposx * scale, gbargeposy, gbargeicon.width * scale, gbargeicon.height * scale)
   end
 end

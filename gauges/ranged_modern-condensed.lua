@@ -1,5 +1,4 @@
-drawgauge = function ()
-  lineprogram:setuniform4f(2, 150/255, 255/255, 97/255, 1) -- line colour (rgba, 0.0 - 1.0)
+drawrangedgauge = function ()
 
   local bars = bars.ranged
   updatebarlist(bars, t)
@@ -15,6 +14,18 @@ drawgauge = function ()
   local bolgstacks = ranged['perfect-equilibrium'][((not buffs.perfectequilibrium.active and '0') or buffs.perfectequilibrium.number) .. (buffs.balancebyforce.active and "-bbf" or "")]
 
   local dspimg
+
+  local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
+  local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
+  local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
+
+  if buffs.temporalanomaly.active then
+    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, gm + ((110) * scale), gv - (20 * scale), taimg.width * scale, taimg.height * scale)
+  elseif buffs.animatedead.active then
+    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, gm + ((110 + 10) * scale), gv - (10 * scale), adimg.width * scale, adimg.height * scale)
+  elseif buffs.darkness.active then
+    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, gm + ((110 + 10) * scale), gv - (10 * scale), dnessimg.width * scale, dnessimg.height * scale)
+  end
 
 -- deathspores
   if not buffs.spore.parensnumber or not buffs.spore.active then
@@ -64,19 +75,11 @@ drawgauge = function ()
 
 --temp buffs
 
-  local dsicon = ranged['deaths-swiftness'].icon
-  local dsdigit1, dsdigit2 = numparse(buffs.deathsswiftness.number, numssmall.width / 10)
-  local gdsicon = ranged['deaths-swiftness'].gicon
-  local gdsdigit1, gdsdigit2 = numparse(buffs.gdeathsswiftness.number, numssmall.width / 10)
-
+  local dsicon = ranged['deaths-swiftness'][buffs.deathsswiftness.active and 'icon' or 'iconi']
+  local gdsicon = ranged['deaths-swiftness'][buffs.gdeathsswiftness.active and 'gicon' or 'giconi']
   local incenicon = ranged.incen.icon
-  local incendigit1, incendigit2 = numparse(buffs.critbuff.number, numssmall.width / 10)
-
   local dracoicon = ranged.draco.edraco
-  local dracodigit1, dracodigit2 = numparse(buffs.draco.number, numssmall.width / 10)
-
   local ssicon = ranged['split-soul'].icon
-  local ssdigit1, ssdigit2 = numparse(buffs.splitsoul.number, numssmall.width / 10)
 
 -- quickly configure positions of the popup buffs
   local dsposx =  gm - 220
@@ -93,23 +96,45 @@ drawgauge = function ()
 
 
 -- ds
-  if buffs.gdeathsswiftness.active then
+  if bars.gdeathsswiftness.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dsposx - ( 4 * scale), (dsposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     gdsicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dsposx * scale, dsposy * scale, gdsicon.width * scale, gdsicon.height * scale)
+
+    local timeleft = math.floor((bars.gdeathsswiftness.max - (t - bars.gdeathsswiftness.start)) / 1000000)
+    local gdsdigit1, gdsdigit2 = numparse(timeleft, numssmall.width / 10)
+
     numssmall.surface:drawtoscreen(gdsdigit1, 0, numssmall.width / 10, numssmall.height, dsposx + (20 * scale), dsposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(gdsdigit2, 0, numssmall.width / 10, numssmall.height, dsposx + ((20 + (numssmall.width / 10)) * scale), dsposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
+  if bars.deathsswiftness.start ~= nil then
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dsposx - ( 4 * scale), (dsposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    dsicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dsposx * scale, dsposy * scale, gdsicon.width * scale, gdsicon.height * scale)
+
+    local timeleft = math.floor((bars.deathsswiftness.max - (t - bars.deathsswiftness.start)) / 1000000)
+    local dsdigit1, dsdigit2 = numparse(timeleft, numssmall.width / 10)
+
+    numssmall.surface:drawtoscreen(dsdigit1, 0, numssmall.width / 10, numssmall.height, dsposx + (20 * scale), dsposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
+    numssmall.surface:drawtoscreen(dsdigit2, 0, numssmall.width / 10, numssmall.height, dsposx + ((20 + (numssmall.width / 10)) * scale), dsposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
+  end
 -- incen
-  if buffs.critbuff.active then
+  if bars.critbuff.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, incenposx - ( 4 * scale), (incenposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     incenicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, incenposx * scale, incenposy * scale, gdsicon.width * scale, gdsicon.height * scale)
+
+    local timeleft = math.floor((bars.critbuff.max - (t - bars.critbuff.start)) / 1000000)
+    local incendigit1, incendigit2 = numparse(timeleft, numssmall.width / 10)
+
     numssmall.surface:drawtoscreen(incendigit1, 0, numssmall.width / 10, numssmall.height, incenposx + (20 * scale), incenposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(incendigit2, 0, numssmall.width / 10, numssmall.height, incenposx + ((20 + (numssmall.width / 10)) * scale), incenposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
 -- split soul
-  if buffs.splitsoul.active then
+  if bars.splitsoul.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ssposx - ( 4 * scale), (ssposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     ssicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, ssposx * scale, ssposy, gdsicon.width * scale, gdsicon.height * scale)
+
+    local timeleft = math.floor((bars.soulsplit.max - (t - bars.soulsplit.start)) / 1000000)
+    local ssdigit1, ssdigit2 = numparse(timeleft, numssmall.width / 10)
+
     numssmall.surface:drawtoscreen(ssdigit1, 0, numssmall.width / 10, numssmall.height, ssposx + (20 * scale), ssposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(ssdigit2, 0, numssmall.width / 10, numssmall.height, ssposx + ((20 + (numssmall.width / 10)) * scale), ssposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
@@ -117,6 +142,9 @@ drawgauge = function ()
   if buffs.draco.active then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dracoposx - ( 4 * scale), (dracoposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     dracoicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dracoposx * scale, dracoposy, gdsicon.width * scale, gdsicon.height * scale)
+
+    local dracodigit1, dracodigit2 = numparse(buffs.draco.number, numssmall.width / 10)
+
     numssmall.surface:drawtoscreen(dracodigit1, 0, numssmall.width / 10, numssmall.height, dracoposx + (20 * scale), dracoposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(dracodigit2, 0, numssmall.width / 10, numssmall.height, dracoposx + ((20 + (numssmall.width / 10)) * scale), dracoposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
@@ -145,6 +173,9 @@ drawgauge = function ()
     numsbg.surface:drawtoscreen(0, 0, numsbg.width, numsbg.height, gm - ((105 - bolgstacks.width - 5 - 1 + (nums.width / 25)) * scale), gv - ((32 - bolgstacks.height + (bolgstacks.height /2) + nums.height - 5) * scale), numsbg.width * scale, numsbg.height * scale)
     nums.surface:drawtoscreen(bolgnum, 0, nums.width / 10, nums.height, gm - ((105 - bolgstacks.width - 5) * scale), gv - ((38 - bolgstacks.height + (bolgstacks.height /2) ) * scale), (nums.width) / 10 * scale, (nums.height) * scale)
   end
+
+-- bolg cheatsheet
+  --[[
   local pemax
   if buffs.balancebyforce.active then
     pemax = 4
@@ -191,6 +222,6 @@ drawgauge = function ()
   numssmall.surface:drawtoscreen(rapid, 0, numssmall.width / 10, numssmall.height, gm + 60 - (30 * scale), gv - (28 + bolgstacks.height * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
 
   numssmall.surface:drawtoscreen(deadshot, 0, numssmall.width / 10, numssmall.height, gm + (60 * scale), gv - (28 + bolgstacks.height * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
-
+--]]
 
 end
