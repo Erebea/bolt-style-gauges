@@ -3,7 +3,7 @@ FFXIV Inspired Combat Style Gauges for RS3, made specifically for Bolt: https://
 
 Also Inspired by the alt1 plugin: https://github.com/NadyaNayme/job-gauges
 
-Currently the gauges are toggled on/off based on which level 95 statboosting prayer or damage boosting ultimate you have activated. (more to be added)
+Currently the gauges are toggled on/off based on which level 95 statboosting prayer or damage boosting ultimate you have activated (more to be added.)
 
 Previews:
 
@@ -40,6 +40,7 @@ The script includes a check for bloat that will reset the timer if particles cor
 
 ![Magic guide](/assets/guide-magic.png)
 
+When using temporal anomaly, the indicator for it flashes when it procs (but also does so when the roar of awakening DoT reset passive procs.)
 ## Ranged Gauge
 
 ![Ranged guide](/assets/guide-ranged.png)
