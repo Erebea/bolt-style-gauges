@@ -35,6 +35,8 @@ In addition, in the ranged gauge script there is an "experimental" bolg cheatshe
 
 ![Necromancy guide](/assets/guide-necromancy.png)
 
+The script includes a check for bloat that will reset the timer if particles corresponding to using the bloat ability are used. This should exclude other players, but if it doesn't please let me know...
+
 ## Magic Gauge
 
 ![Magic guide](/assets/guide-magic.png)
@@ -42,6 +44,8 @@ In addition, in the ranged gauge script there is an "experimental" bolg cheatshe
 ## Ranged Gauge
 
 ![Ranged guide](/assets/guide-ranged.png)
+
+Currently equipped ammo to be added
 
 ## Melee Gauge
 
