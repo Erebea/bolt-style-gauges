@@ -67,7 +67,7 @@ drawmeleegauge = function ()
 -- temp buffs
 
   if bars.berserk.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, berserkposx - ( 4 * scale), (berserkposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, berserkposx - ( 14 * scale), (berserkposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     berserkicon.surface:drawtoscreen(0, 0, berserkicon.width, berserkicon.height, berserkposx * scale, berserkposy, berserkicon.width * scale, berserkicon.height * scale)
 
     local timeleft = math.floor((bars.berserk.max - (t - bars.berserk.start)) / 1000000)
@@ -78,7 +78,7 @@ drawmeleegauge = function ()
   end
 
   if bars.critbuff.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, meteorposx - ( 4 * scale), (meteorposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, meteorposx - ( 14 * scale), (meteorposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     meteoricon.surface:drawtoscreen(0, 0, meteoricon.width, meteoricon.height, meteorposx * scale, meteorposy, meteoricon.width * scale, meteoricon.height * scale)
 
     local timeleft = math.floor((bars.critbuff.max - (t - bars.critbuff.start)) / 1000000)

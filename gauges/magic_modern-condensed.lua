@@ -72,7 +72,7 @@ end
 -- temp buffs
 
   -- quickly configure positions of the popup buffs
-  local sunposx =  gm - 28
+  local sunposx =  gm - 20
   local sunposy =  (gv - (96 + (numssmall.height / 2))) + 70
 
   local tsuposx = sunposx + 65
@@ -82,7 +82,7 @@ end
   local fsoaposy = sunposy
 
   if bars.sunshine.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 4 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 14 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     sunicon.surface:drawtoscreen(0, 0, sunicon.width, sunicon.height, sunposx * scale, sunposy, sunicon.width * scale, sunicon.height * scale)
 
     local timeleft = math.floor((bars.sunshine.max - (t - bars.sunshine.start)) / 1000000)
@@ -92,7 +92,7 @@ end
     numssmall.surface:drawtoscreen(sundigit2, 0, numssmall.width / 10, numssmall.height, sunposx + ((20 + (numssmall.width / 10)) * scale), sunposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
   if bars.gsunshine.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 4 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 14 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     gsunicon.surface:drawtoscreen(0, 0, sunicon.width, sunicon.height, sunposx * scale, sunposy, sunicon.width * scale, sunicon.height * scale)
 
     local timeleft = math.floor((bars.gsunshine.max - (t - bars.gsunshine.start)) / 1000000)
@@ -102,7 +102,7 @@ end
     numssmall.surface:drawtoscreen(sundigit2, 0, numssmall.width / 10, numssmall.height, sunposx + ((20 + (numssmall.width / 10)) * scale), sunposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
   if bars.metamorphosis.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 4 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 14 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     metaicon.surface:drawtoscreen(0, 0, metaicon.width, metaicon.height, sunposx * scale, sunposy, metaicon.width * scale, metaicon.height * scale)
 
     local timeleft = math.floor((bars.metamorphosis.max - (t - bars.metamorphosis.start)) / 1000000)
@@ -114,7 +114,7 @@ end
 
 
   if bars.critbuff.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, tsuposx - ( 4 * scale), (tsuposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, tsuposx - ( 14 * scale), (tsuposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     tsuicon.surface:drawtoscreen(0, 0, tsuicon.width, tsuicon.height, tsuposx * scale, tsuposy, tsuicon.width * scale, tsuicon.height * scale)
 
     local timeleft = math.floor((bars.critbuff.max - (t - bars.critbuff.start)) / 1000000)
@@ -125,7 +125,7 @@ end
   end
 
   if bars.instability.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, fsoaposx - ( 4 * scale), (fsoaposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, fsoaposx - ( 14 * scale), (fsoaposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     fsoaicon.surface:drawtoscreen(0, 0, fsoaicon.width, fsoaicon.height, fsoaposx * scale, fsoaposy - 4, fsoaicon.width * scale, fsoaicon.height * scale)
 
     local timeleft = math.floor((bars.instability.max - (t - bars.instability.start)) / 1000000)

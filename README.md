@@ -11,8 +11,6 @@ Previews:
 ![This is Ranged](/assets/preview-ranged.png)
 ![This is Melee](/assets/preview-melee.png)
 
-# What?
-
 # How what
 
 ## Installation
