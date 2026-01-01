@@ -27,8 +27,6 @@ Inside the main.lua file there are a few configurable variables. These are:
 
 Within each gauge script there are a few more position variables to configure a gauge to your liking, these were a later addition so not every element has easily configurable position variables. These will be suffixed by `posx` and `posy`
 
-In addition, in the ranged gauge script there is an "experimental" bolg cheatsheet that displays key abilities and the bolg stacks you will end on after fully using them, along with indicators for how many times the perfect equilibrium shot will go off. This is currently written for the beta, so deadshot is calculated as giving 5 stacks.
-
 # Guide
 
 ## Necromancy Gauge
@@ -45,7 +43,7 @@ The script includes a check for bloat that will reset the timer if particles cor
 
 ![Ranged guide](/assets/guide-ranged.png)
 
-Currently equipped ammo to be added
+Currently equipped ammo to be added. Also includes an "experimental" bolg cheatsheet that displays key abilities and the bolg stacks you will end on after fully using them, along with indicators for how many times the perfect equilibrium shot will go off. This is currently written for the beta, so deadshot is calculated as giving 5 stacks. You will have to either move them or the temp buff timers since they would overlap.
 
 ## Melee Gauge
 
