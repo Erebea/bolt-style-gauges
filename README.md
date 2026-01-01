@@ -3,7 +3,7 @@ FFXIV Inspired Combat Style Gauges for RS3, made specifically for Bolt: https://
 
 Also Inspired by the alt1 plugin: https://github.com/NadyaNayme/job-gauges
 
-Currently the gauges are toggled on/off based on which level 95 statboosting prayer or damage boosting ultimate you have activated (more to be added.)
+Currently the gauges are toggled on/off based on which level 95 or 99 statboosting prayer (or sanctity for necro) or damage boosting ultimate you have activated.
 
 Previews:
 
