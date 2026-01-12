@@ -34,7 +34,7 @@ Within each gauge script there are a few more position variables to configure a 
 
 ![Necromancy guide](/assets/guide-necromancy.png)
 
-The script includes a check for bloat that will reset the timer if particles corresponding to using the bloat ability are used. This should exclude other players, but if it doesn't please let me know...
+The script includes a check for bloat that will reset the timer if you reuse the bloat ability. This works by checking for a particular model that seems to be part of the animation. If this is behaving weirdly or badly please let me know.
 
 ## Magic Gauge
 
