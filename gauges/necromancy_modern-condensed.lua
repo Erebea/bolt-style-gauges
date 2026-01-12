@@ -85,7 +85,7 @@ drawnecrogauge = function ()
   local bloatwidth
   bloat.bloatbg.surface:drawtoscreen(0, 0, bloat.bloatbg.width, bloat.bloatbg.height, gm - (105 * scale), gv - (8 * scale), 221 * scale, 16 * scale)
   if bars.bloat.start ~= nil then
-    if particles.bloat.foundoncheckframe then
+    if models.bloat.foundoncheckframe then
       bars.bloat.start = t 
     end
     local elapsed = t - bars.bloat.start
