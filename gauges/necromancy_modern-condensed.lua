@@ -94,8 +94,9 @@ drawnecrogauge = function ()
     bloat.bloatbar.surface:drawtoscreen(0, 0, bloat.bloatbar.width, bloat.bloatbar.height, gm - (102 * scale), gv - (8 * scale), bloatwidth, 16 * scale)
   end
   bloat.bloatframe.surface:drawtoscreen(0, 0, bloat.bloatframe.width, bloat.bloatframe.height, gm - (105 * scale), gv - (8 * scale), 221 * scale, 16 * scale)
+  if tickerx ~= 0 then
   ticker.surface:drawtoscreen(0, 0, ticker.width, ticker.height, tickerx, gv - (8 * scale), ticker.width, 16 * scale)
-  
+  end
 
   necrosisimg.surface:drawtoscreen(0, 0, necrosisimg.width, necrosisimg.height, gm + (58 * scale), gv - (39 * scale), necrosisimg.width * scale, necrosisimg.height * scale)
 

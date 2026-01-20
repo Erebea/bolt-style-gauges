@@ -16,32 +16,32 @@ drawmagegauge = function ()
   local tsuicon = mage.tsunami.icon
   local fsoaicon = mage.instability.icon
 
-local geimg_key
-if buffs.incitefear.active then
-  if buffs.incitefear.parensnumber < 5 then
-    geimg_key = '0'
-  else
-    if not buffs.glacialembrace.active then
-      geimg_key = 'ready'
+  local geimg_key
+  if buffs.incitefear.active and buffs.incitefear.number then
+    if buffs.incitefear.parensnumber < 5 then
+      geimg_key = '0'
     else
-      geimg_key = '5'
+      if not buffs.glacialembrace.active then
+        geimg_key = 'ready'
+      else
+        geimg_key = '5'
+      end
     end
+  else
+    geimg_key = '0'
   end
-else
-  geimg_key = '0'
-end
 
 -- Use the determined key to get the image
   local geimg = mage['glacial-embrace'][geimg_key]
   local gebarbg = mage['glacial-embrace'].gebarbg
 
-  local btimg = mage['blood-tithe'][buffs.exsanguinate.active and ((buffs.exsanguinate.parensnumber < 12) and '0' or '12') or '0']
+  local btimg = mage['blood-tithe'][buffs.exsanguinate.active and ((buffs.exsanguinate.parensnumber or 0) < 12 and '0' or '12') or '0']
   local btbarbg = mage['blood-tithe'].btbarbg
 
   ask = (buffs.exsanguinate.number == 20 and 'exsanguinate2') or (buffs.incitefear.number == 20 and 'incite-fear2') or (ask or 'no-spell')
   local asimg = mage['active-spell'][ask]
 
-  local ceimg = mage['corruption-essence'][((not buffs.corruptionessence.active and '0') or (buffs.corruptionessence.parensnumber < 1 and '0') or (buffs.corruptionessence.parensnumber < 25 and '1') or (buffs.corruptionessence.parensnumber < 50 and '2') or '3') .. (not buffs.soulfire.active and "-ready" or "")]
+  local ceimg = mage['corruption-essence'][((not buffs.corruptionessence.active and '0') or ((buffs.corruptionessence.parensnumber or 0) < 1 and '0') or ((buffs.corruptionessence.parensnumber or 0) < 25 and '1') or ((buffs.corruptionessence.parensnumber or 0) < 50 and '2') or '3') .. (not buffs.soulfire.active and "-ready" or "")]
   local cebarframe = mage['corruption-essence'].cebarframe
   local cebarbg = mage['corruption-essence'].cebarbg
 
