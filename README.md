@@ -5,6 +5,10 @@ Also Inspired by the alt1 plugin: https://github.com/NadyaNayme/job-gauges
 
 Currently the gauges are toggled on/off based on which level 70, 95, or 99 statboosting prayer or damage boosting ultimate you have activated. Or conjuring skeleton for necromancy.
 
+**Note: Currently requires buff bar icon size to be at least medium**
+
+**Also note: A mostly unintended update of indicators for low prayer points as well as low overload, summoning, poison, and aura timers has been pushed**
+
 Previews:
 
 ![This is Necromancy](/assets/preview-necromancy.png)
