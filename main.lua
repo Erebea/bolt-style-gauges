@@ -56,6 +56,7 @@ hidegauge = false
 -- drag state for shift+drag repositioning
 local gauge_window = nil
 local dragging = false
+local recreate_window_deferred = false
 local drag_offset_x = 0
 local drag_offset_y = 0
 local drag_window_x = 0
@@ -703,6 +704,10 @@ end
 local closeGaugeWindow
 local setupGaugeWindow
 
+local function isDragModifierPressed(event)
+  return event:shift() and event:alt()
+end
+
 closeGaugeWindow = function()
   if gauge_window then
     gauge_window:close()
@@ -730,7 +735,7 @@ setupGaugeWindow = function()
       gx = drag_window_x + mx - drag_offset_x
       gy = drag_window_y + my - drag_offset_y
       updateGaugePositions()
-    elseif not event:shift() then
+    elseif not isDragModifierPressed(event) then
       closeGaugeWindow()
     end
   end)
@@ -739,10 +744,9 @@ setupGaugeWindow = function()
     if event:button() == 1 and dragging then
       dragging = false
       bolt.saveconfig("position.cfg", tostring(math.floor(gx)) .. "," .. tostring(math.floor(gy)))
-      if event:shift() then
-        setupGaugeWindow()
-      else
-        closeGaugeWindow()
+      closeGaugeWindow()
+      if isDragModifierPressed(event) then
+        recreate_window_deferred = true
       end
     end
   end)
@@ -751,7 +755,7 @@ end
 -- mouse handlers: show/hide the click-blocking window based
 -- on shift state, and serve as a fallback if the window wasn't up yet
 bolt.onmousebutton(function(event)
-  if event:button() == 1 and event:shift() then
+  if event:button() == 1 and isDragModifierPressed(event) then
     local mx, my = event:xy()
     if mx >= gx and mx <= gr and my >= gy and my <= gb then
       if not gauge_window then
@@ -772,7 +776,7 @@ bolt.onmousemotion(function(event)
     gx = mx - drag_offset_x
     gy = my - drag_offset_y
     updateGaugePositions()
-  elseif event:shift() then
+  elseif isDragModifierPressed(event) then
     local mx, my = event:xy()
     if mx >= gx and mx <= gr and my >= gy and my <= gb and not gauge_window then
       setupGaugeWindow()
@@ -788,12 +792,9 @@ bolt.onmousebuttonup(function(event)
   if event:button() == 1 and dragging then
     dragging = false
     bolt.saveconfig("position.cfg", tostring(math.floor(gx)) .. "," .. tostring(math.floor(gy)))
-    if event:shift() then
-      if not gauge_window then
-        setupGaugeWindow()
-      end
-    else
-      closeGaugeWindow()
+    closeGaugeWindow()
+    if isDragModifierPressed(event) then
+      recreate_window_deferred = true
     end
   end
 end)
@@ -801,6 +802,11 @@ end)
 bolt.onrender2d(function (event)
   local t = bolt.time()
   if not checkframe then return end
+
+  if recreate_window_deferred then
+    recreate_window_deferred = false
+    setupGaugeWindow()
+  end
 
   if nextrender2dbuff or nextrender2ddebuff then
     local valid, number, parensnumber, isbuff = modules.buffs:tryreadbuffdetails(event, 1, nextrender2dpxleft, nextrender2dpxtop)
