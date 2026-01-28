@@ -43,7 +43,7 @@ drawrangedgauge = function ()
 
   dspimg.surface:drawtoscreen(0, 0, dspimg.width, dspimg.height, gm - (102 * scale), gv - (2 * scale), dspimg.width * scale, dspimg.height * scale)
 
-  if buffs.sporecd.active then
+  if buffs.sporecd.active and buffs.sporecd.number then
     local sporebarcd = ranged.deathspore.barfillcd
     local elapsed = buffs.sporecd.number * 1000000
     local width = math.floor(barfill(bars.sporecd.max, elapsed, 100) * scale)
