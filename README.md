@@ -20,13 +20,12 @@ Previews:
 Go to your plugins on the bolt launcher and click "Install plugin from updater url", paste https://raw.githubusercontent.com/Erebea/bolt-style-gauges/refs/heads/master/meta.json, and enter
 
 ## Configuration
-Inside the main.lua file there are a few configurable variables. These are:
+
+The position of the gauges can be changed by holding shift+alt and then clicking and dragging the gauge
+
+Inside the main.lua file there are a few configurable variables.
 
 `scale` - Interface scaling value. Every (hopefully) element is sized and positioned in a way that scales with this number, make it higher to scale the entire gauge (useful for 4K res players)
-
-`gx` - X position of the gauge, number of pixels from the left
-
-`gy` - Y position of the gauge, Number of pixels from the top
 
 Within each gauge script there are a few more position variables to configure a gauge to your liking, these were a later addition so not every element has easily configurable position variables. These will be suffixed by `posx` and `posy`
 
