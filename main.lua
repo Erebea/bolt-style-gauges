@@ -16,21 +16,47 @@ gh = 60 * scale
 gx = (1920 / 2) - (gw /2)
 -- y coordinate of the gauge
 gy = 600
-    -- middle position of the gauge
-gm = gx + ( gw / 2)
-    --vertical middle of the gauge
-gv = gy + (gh / 2)
-    -- bottom of the gauge
-gb = gy + gh
-    -- right of the gauge
-gr = gx + gw
 
-  -- position of misc buff trackers/alerters (overload, poison, summon)
-bx = 650
-by = 625
+function updateGaugePositions()
+  gm = gx + (gw / 2)
+  gv = gy + (gh / 2)
+  gb = gy + gh
+  gr = gx + gw
+  bx = gx + bx_offset
+  by = gy + by_offset
+end
+
+bx_offset = 650 - gx
+by_offset = 625 - gy
+
+gm = gx + (gw / 2)
+gv = gy + (gh / 2)
+gb = gy + gh
+gr = gx + gw
+bx = gx + bx_offset
+by = gy + by_offset
+
+local savedpos = bolt.loadconfig("position.cfg")
+if savedpos then
+  local saved_gx, saved_gy = savedpos:match("^(-?[%d%.]+),(-?[%d%.]+)$")
+  if saved_gx and saved_gy then
+    gx = tonumber(saved_gx)
+    gy = tonumber(saved_gy)
+    updateGaugePositions()
+  end
+end
 
 cbstyle = "none"
 hidegauge = false
+
+-- drag state for shift+drag repositioning
+local gauge_window = nil
+local dragging = false
+local recreate_window_deferred = false
+local drag_offset_x = 0
+local drag_offset_y = 0
+local drag_window_x = 0
+local drag_window_y = 0
 
 buffs = {
     -- misc
@@ -671,9 +697,112 @@ setuidetails = function (element, exists, x, y)
   end
 end
 
+local closeGaugeWindow
+local setupGaugeWindow
+
+local function isDragModifierPressed(event)
+  return event:shift() and event:alt()
+end
+
+closeGaugeWindow = function()
+  if gauge_window then
+    gauge_window:close()
+    gauge_window = nil
+  end
+end
+
+setupGaugeWindow = function()
+  closeGaugeWindow()
+  gauge_window = bolt.createwindow(math.floor(gx), math.floor(gy), math.floor(gw), math.floor(gh))
+
+  gauge_window:onmousebutton(function(event)
+    if event:button() == 1 then
+      dragging = true
+      local mx, my = event:xy()
+      drag_offset_x = mx
+      drag_offset_y = my
+      drag_window_x, drag_window_y = gauge_window:xywh()
+    end
+  end)
+
+  gauge_window:onmousemotion(function(event)
+    if dragging then
+      local mx, my = event:xy()
+      gx = drag_window_x + mx - drag_offset_x
+      gy = drag_window_y + my - drag_offset_y
+      updateGaugePositions()
+    elseif not isDragModifierPressed(event) then
+      closeGaugeWindow()
+    end
+  end)
+
+  gauge_window:onmousebuttonup(function(event)
+    if event:button() == 1 and dragging then
+      dragging = false
+      bolt.saveconfig("position.cfg", tostring(math.floor(gx)) .. "," .. tostring(math.floor(gy)))
+      closeGaugeWindow()
+      if isDragModifierPressed(event) then
+        recreate_window_deferred = true
+      end
+    end
+  end)
+end
+
+-- mouse handlers: show/hide the click-blocking window based
+-- on shift state, and serve as a fallback if the window wasn't up yet
+bolt.onmousebutton(function(event)
+  if event:button() == 1 and isDragModifierPressed(event) then
+    local mx, my = event:xy()
+    if mx >= gx and mx <= gr and my >= gy and my <= gb then
+      if not gauge_window then
+        setupGaugeWindow()
+      end
+      dragging = true
+      drag_offset_x = mx - gx
+      drag_offset_y = my - gy
+      drag_window_x = gx
+      drag_window_y = gy
+    end
+  end
+end)
+
+bolt.onmousemotion(function(event)
+  if dragging then
+    local mx, my = event:xy()
+    gx = mx - drag_offset_x
+    gy = my - drag_offset_y
+    updateGaugePositions()
+  elseif isDragModifierPressed(event) then
+    local mx, my = event:xy()
+    if mx >= gx and mx <= gr and my >= gy and my <= gb and not gauge_window then
+      setupGaugeWindow()
+    end
+  else
+    if gauge_window then
+      closeGaugeWindow()
+    end
+  end
+end)
+
+bolt.onmousebuttonup(function(event)
+  if event:button() == 1 and dragging then
+    dragging = false
+    bolt.saveconfig("position.cfg", tostring(math.floor(gx)) .. "," .. tostring(math.floor(gy)))
+    closeGaugeWindow()
+    if isDragModifierPressed(event) then
+      recreate_window_deferred = true
+    end
+  end
+end)
+
 bolt.onrender2d(function (event)
   local t = bolt.time()
   if not checkframe then return end
+
+  if recreate_window_deferred then
+    recreate_window_deferred = false
+    setupGaugeWindow()
+  end
 
   if nextrender2dbuff or nextrender2ddebuff then
     local valid, number, parensnumber, isbuff = modules.buffs:tryreadbuffdetails(event, 1, nextrender2dpxleft, nextrender2dpxtop)
