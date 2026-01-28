@@ -653,14 +653,14 @@ rendericonlookup2 = {
   end,
 }
 
-setbuffdetails = function (buff, isvalid, number, parensnumber)
-  if isvalid then
-    buff.number = number
-    buff.parensnumber = parensnumber
-    buff.active = true
-    buff.foundoncheckframe = true
-  end
+
+local setbuffdetails = function (buff, number, parensnumber)
+  buff.number = number
+  buff.parensnumber = parensnumber
+  buff.active = true
+  buff.foundoncheckframe = true
 end
+
 
 setuidetails = function (element, exists, x, y)
   if x then
@@ -675,12 +675,13 @@ bolt.onrender2d(function (event)
   local t = bolt.time()
   if not checkframe then return end
 
-  if nextrender2dbuff then
-    setbuffdetails(nextrender2dbuff, modules.buffs:tryreadbuffdetails(event, 1, nextrender2dpxleft, nextrender2dpxtop, true))
+  if nextrender2dbuff or nextrender2ddebuff then
+    local valid, number, parensnumber, isbuff = modules.buffs:tryreadbuffdetails(event, 1, nextrender2dpxleft, nextrender2dpxtop)
+    if valid then
+      local buff = isbuff and nextrender2dbuff or nextrender2ddebuff
+      if buff then setbuffdetails(buff, number, parensnumber) end
+    end
     nextrender2dbuff = nil
-  end
-  if nextrender2ddebuff then
-    setbuffdetails(nextrender2ddebuff, modules.buffs:tryreadbuffdetails(event, 1, nextrender2dpxleft, nextrender2dpxtop, false))
     nextrender2ddebuff = nil
   end
 
@@ -690,8 +691,12 @@ bolt.onrender2d(function (event)
     local ax, ay, aw, ah, _, _ = event:vertexatlasdetails(i)
     if checkframe then
       local pxleft, pxtop = event:vertexxy(i + 2)
-      local readbuff = function (buff, isbuff)
-        setbuffdetails(buff, modules.buffs:tryreadbuffdetails(event, i + verticesperimage, pxleft, pxtop, isbuff))
+
+      -- helper that calls tryreadbuffdetails with relevant upvalues for this specific image
+      -- expectbuff is true if this is expected to be a buff (green), false if debuff (red)
+      local readbuff = function (buff, expectbuff)
+        local valid, number, parensnumber, isbuff = modules.buffs:tryreadbuffdetails(event, i + verticesperimage, pxleft, pxtop)
+        if valid and isbuff == expectbuff then setbuffdetails(buff, number, parensnumber) end
       end
       local readuielement = function (element, exists)
         setuidetails(element, exists, pxleft, pxtop)

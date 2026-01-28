@@ -53,7 +53,7 @@ drawmeleegauge = function ()
     dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx * scale, aspectposy * scale, dnessimg.width * scale, dnessimg.height * scale)
   end
 
-  if buffs.frostblades.active then
+  if buffs.frostblades.active and buffs.frostblades.number then
     lengbarbg.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, (lengposx + 5) * scale, (lengposy + lengstacks.height - 5) * scale, lengbarbg.width * scale, lengbarbg.height * scale)
 
     local elapsed = bars.frostblades.max - (buffs.frostblades.number * 1000000)

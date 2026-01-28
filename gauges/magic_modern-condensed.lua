@@ -60,7 +60,7 @@ drawmagegauge = function ()
   end
 
   cebarbg.surface:drawtoscreen(0, 0, cebarbg.width, cebarbg.height, gm - (105 * scale), gv - (8 * scale), 221 * scale, 16 * scale)
-  if bars.corruptionessence.start ~= nil then
+  if bars.corruptionessence.start ~= nil and buffs.corruptionessence.number then
     local cebar = mage['corruption-essence'].cebar
     local elapsed = bars.corruptionessence.max - (buffs.corruptionessence.number * 1000000)
     local width = math.floor(barfill(bars.corruptionessence.max, elapsed, 216) * scale)
@@ -139,7 +139,7 @@ drawmagegauge = function ()
 
   btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, gm - (12 * scale), gv + (8 * scale), btimg.width * scale, btimg.height * scale)
 --  btbarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm - ((13 + 55) * scale), gv + (18 * scale), btbarbg.width, btbarbg.height * scale)
-  if bars.exsanguinate.start ~= nil then
+  if bars.exsanguinate.start ~= nil and buffs.exsanguinate.number then
     local btbar = mage['blood-tithe'].btbar
     local elapsed = bars.exsanguinate.max - (buffs.exsanguinate.number * 1000000)
     local width = -barfill(bars.exsanguinate.max, elapsed, 55)
@@ -148,7 +148,7 @@ drawmagegauge = function ()
 
   geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, gm + (12 * scale), gv + (8 * scale), geimg.width * scale, geimg.height * scale)
 --  gebarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm + ((13  + 22)* scale), gv + (18 * scale), gebarbg.width * scale, gebarbg.height * scale)
-  if bars.incitefear.start ~= nil then
+  if bars.incitefear.start ~= nil and buffs.incitefear.number then
     local gebar = mage['glacial-embrace'].gebar
     local elapsed = bars.incitefear.max - (buffs.incitefear.number * 1000000)
     local width = math.floor(barfill(bars.incitefear.max, elapsed, 55) * scale)
