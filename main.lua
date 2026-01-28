@@ -16,18 +16,35 @@ gh = 60 * scale
 gx = (1920 / 2) - (gw /2)
 -- y coordinate of the gauge
 gy = 600
-    -- middle position of the gauge
-gm = gx + ( gw / 2)
-    --vertical middle of the gauge
-gv = gy + (gh / 2)
-    -- bottom of the gauge
-gb = gy + gh
-    -- right of the gauge
-gr = gx + gw
 
-  -- position of misc buff trackers/alerters (overload, poison, summon)
-bx = 650
-by = 625
+function updateGaugePositions()
+  gm = gx + (gw / 2)
+  gv = gy + (gh / 2)
+  gb = gy + gh
+  gr = gx + gw
+  bx = gx + bx_offset
+  by = gy + by_offset
+end
+
+bx_offset = 650 - gx
+by_offset = 625 - gy
+
+gm = gx + (gw / 2)
+gv = gy + (gh / 2)
+gb = gy + gh
+gr = gx + gw
+bx = gx + bx_offset
+by = gy + by_offset
+
+local savedpos = bolt.loadconfig("position.cfg")
+if savedpos then
+  local saved_gx, saved_gy = savedpos:match("^(-?[%d%.]+),(-?[%d%.]+)$")
+  if saved_gx and saved_gy then
+    gx = tonumber(saved_gx)
+    gy = tonumber(saved_gy)
+    updateGaugePositions()
+  end
+end
 
 cbstyle = "none"
 hidegauge = false
