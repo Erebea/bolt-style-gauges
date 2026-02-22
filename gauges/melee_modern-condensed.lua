@@ -24,19 +24,24 @@ drawmeleegauge = function ()
   local lengbarbg = melee.lengs.barbg
   local lengbarfill = melee.lengs.barfill
 
+  local bloodlustimg = melee.bloodlust[((not buffs.bloodlust.active and '0') or buffs.bloodlust.number) .. (buffs.berserk.active and "-b" or "")]
+
 -- easily configure positions of major element groups
 
   local lengposx =  gm - 105
   local lengposy =  gv - 28
 
-  local berserkposx =  gm - 110 + lengstacks.width + 20
-  local berserkposy =  gv - 26
+  local bloodlustposx = lengposx + lengstacks.width + 4
+  local bloodlustposy = gv - 24
+
+  local berserkposx =  lengposx + 4
+  local berserkposy =  gv - 60
 
   local meteorposx = berserkposx + 65
   local meteorposy = berserkposy
 
   local gbargeposx = gm - lengstacks.width - 12
-  local gbargeposy = berserkposy + 1
+  local gbargeposy = bloodlustposy
 
   local aspectposx = gbargeposx + 1
   local aspectposy = gbargeposy + 24
@@ -66,22 +71,22 @@ drawmeleegauge = function ()
 
 -- temp buffs
 
-  if bars.berserk.start ~= nil then
+  if buffs.berserk.active then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, berserkposx - ( 14 * scale), (berserkposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     berserkicon.surface:drawtoscreen(0, 0, berserkicon.width, berserkicon.height, berserkposx * scale, berserkposy, berserkicon.width * scale, berserkicon.height * scale)
 
-    local timeleft = math.floor((bars.berserk.max - (t - bars.berserk.start)) / 1000000)
+    local timeleft = buffs.berserk.number
     local berserkdigit1, berserkdigit2 = numparse(timeleft, numssmall.width / 10)
 
     numssmall.surface:drawtoscreen(berserkdigit1, 0, numssmall.width / 10, numssmall.height, berserkposx + (20 * scale), berserkposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(berserkdigit2, 0, numssmall.width / 10, numssmall.height, berserkposx + ((20 + (numssmall.width / 10)) * scale), berserkposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
 
-  if bars.critbuff.start ~= nil then
+  if bars.meteor.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, meteorposx - ( 14 * scale), (meteorposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     meteoricon.surface:drawtoscreen(0, 0, meteoricon.width, meteoricon.height, meteorposx * scale, meteorposy, meteoricon.width * scale, meteoricon.height * scale)
 
-    local timeleft = math.floor((bars.critbuff.max - (t - bars.critbuff.start)) / 1000000)
+    local timeleft = math.floor((bars.meteor.max - (t - bars.meteor.start)) / 1000000)
     local meteordigit1, meteordigit2 = numparse(timeleft, numssmall.width / 10)
 
     numssmall.surface:drawtoscreen(meteordigit1, 0, numssmall.width / 10, numssmall.height, meteorposx + (20 * scale), meteorposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
@@ -92,4 +97,6 @@ drawmeleegauge = function ()
     --dotbg.surface:drawtoscreen(0, 0, dotbg.width, dotbg.height, (gbargeposx - 1) * scale, (gbargeposy - 1) * scale, dotbg.width * scale, dotbg.height * scale)
     gbargeicon.surface:drawtoscreen(0, 0, gbargeicon.width, gbargeicon.height, gbargeposx * scale, gbargeposy, gbargeicon.width * scale, gbargeicon.height * scale)
   end
+
+  bloodlustimg.surface:drawtoscreen(0, 0, bloodlustimg.width, bloodlustimg.height, bloodlustposx * scale, bloodlustposy * scale, bloodlustimg.width * scale, bloodlustimg.height * scale)
 end

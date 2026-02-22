@@ -135,11 +135,11 @@ end
     numssmall.surface:drawtoscreen(dsdigit2, 0, numssmall.width / 10, numssmall.height, dsposx + ((20 + (numssmall.width / 10)) * scale), dsposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
 -- incen
-  if bars.critbuff.start ~= nil then
+  if buffs.shadows.active then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, incenposx - ( 14 * scale), (incenposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
     incenicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, incenposx * scale, incenposy * scale, gdsicon.width * scale, gdsicon.height * scale)
 
-    local timeleft = math.floor((bars.critbuff.max - (t - bars.critbuff.start)) / 1000000)
+    local timeleft = buffs.shadows.number
     local incendigit1, incendigit2 = numparse(timeleft, numssmall.width / 10)
 
     numssmall.surface:drawtoscreen(incendigit1, 0, numssmall.width / 10, numssmall.height, incenposx + (20 * scale), incenposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
