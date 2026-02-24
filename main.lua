@@ -157,6 +157,8 @@ elements = {
   central = {},
   lobby = {},
   loot = {},
+  bankpresets = {},
+  slotbg = {},
 }
 
 abilities = {
@@ -190,6 +192,8 @@ images = {
       summon = true,
       prayer = true,
       hilight = true,
+      hilighthorizontal = true,
+      hilightvertical = true,
     },
     ['modern-condensed'] = {
       aspects = {
@@ -545,13 +549,13 @@ updatebarlist = function (bars, t)
 end
 
 numparse = function (num, size)
-    local number_to_process
-    if type(num) ~= "number" then
-        number_to_process = 0
-    else
-        -- Optional: Cap the number within the supported range (0-99)
-        number_to_process = math.max(0, math.min(99, num))
-    end
+  local number_to_process
+  if type(num) ~= "number" then
+      number_to_process = 0
+  else
+      -- Optional: Cap the number within the supported range (0-99)
+      number_to_process = math.max(0, math.min(99, num))
+  end
 
     -- Format the number into a two-digit string (e.g., 5 -> "05")
   local num_str = string.format("%02d", number_to_process)
@@ -567,13 +571,48 @@ numparse = function (num, size)
   return digit1, digit2
 end
 
+miscui = images['gauge-ui'].misc
+hhimg = miscui.hilighthorizontal
+hvimg = miscui.hilightvertical
 
-hilightimg = images['gauge-ui'].misc.hilight
-hilightability = function (ability)
-  ability.hilight = true
-  hilightimg.surface:drawtoscreen(0, 0, hilightimg.width, hilightimg.height, ability.x - (1 * scale), ability.y - (1 * scale), hilightimg.width * scale, hilightimg.height * scale)
+ovlimg = miscui.overloaded
+auraimg = miscui.aura
+summimg = miscui.summon
+poisonimg = miscui.poisonous
+prayerimg = miscui.prayer
+
+hv = 0
+hh = 0
+
+hilightabilities = function()
+
+  hh = hh or 0
+  hv = hv or 0
+
+  if checkframe then
+    hv = hv + 1
+    hh = hh + 1
+  end
+
+  if math.abs(hv) >= 16 then hv = 0 end
+  if math.abs(hh) >= 16 then hh = 0 end
+
+  for name, ability in pairs(abilities) do
+    if ability.hilight and ability.active then
+      
+      local x = ability.x
+      local y = ability.y
+
+      local hx = x - 2
+      local hy = y - 2
+
+      hhimg.surface:drawtoscreen(hh, 0, 32, hhimg.height, hx + (2 * ability.scale), hy, 32 * ability.scale, hhimg.height * ability.scale)
+      hvimg.surface:drawtoscreen(0, hv, hvimg.width, 32, hx, hy + (32 * ability.scale), hvimg.width * ability.scale, -32 * ability.scale)
+      hhimg.surface:drawtoscreen(hh, 0, 32, hhimg.height, hx + (32 * ability.scale), hy + (32 * ability.scale), -32 * ability.scale, hhimg.height * ability.scale)
+      hvimg.surface:drawtoscreen(0, hv, hvimg.width, 32, hx + (32 * ability.scale), hy + (2 * ability.scale), hvimg.width * ability.scale, 32 * ability.scale)
+    end
+  end
 end
-
 
 local function drawbox (worldpoint, viewmatrix, projmatrix, boxradius, boxthickness)
   local px, py, pz = worldpoint:transform(viewmatrix):get()
@@ -745,13 +784,15 @@ setuidetails = function (element, exists, x, y)
   end
 end
 
-setabilitydetails = function (ability, exists, x, y)
+setabilitydetails = function (ability, exists, x, y, size, scale)
   if x then
     ability.x = x
     ability.y = y
     ability.active = true
     ability.foundoncheckframe = true
-    ability.hilight = {}
+    ability.hilight = false
+    ability.size = size
+    ability.scale = scale
   end
 end
 
@@ -872,6 +913,8 @@ bolt.onrender2d(function (event)
     nextrender2ddebuff = nil
   end
 
+  elements.slotbg = {}
+
   local vertexcount = event:vertexcount()
   local verticesperimage = event:verticesperimage()
   for i = 1, vertexcount, verticesperimage do
@@ -888,9 +931,37 @@ bolt.onrender2d(function (event)
       local readuielement = function (element, exists)
         setuidetails(element, exists, pxleft, pxtop)
       end
+      if aw == 10 then 
+          if event:texturecompare(ax, ay + 5, "\x26\x20\x1c\x75\x31\x2b\x27\xc3\x03\x01\x00\xb3\x03\x01\x00\xa3\x03\x01\x00\x98\x03\x01\x00\x90\x03\x01\x00\x8c\x03\x01\x00\x8c\x03\x01\x00\x8c\x03\x01\x00\x8c") then
+
+            local current_instance = {}
+            readuielement(current_instance, true)
+            table.insert(elements.slotbg, current_instance)
+          end
+      end
       local readability = function (ability, exists)
-        local valid, number, parensnumber, isbuff = modules.buffs:tryreadbuffdetails(event, i + verticesperimage, pxleft, pxtop)
-        if not valid then setabilitydetails(ability, exists, pxleft, pxtop) end
+        --local valid, number, parensnumber, isbuff = modules.buffs:tryreadbuffdetails(event, i + verticesperimage, pxleft, pxtop)
+        local pxlefts, pxtops = event:vertexscaledxy(i + 2)
+        local margin = 10
+        local checkx = pxleft
+        local checky = pxtop
+        local proceed = false
+        for i = 1, #elements.slotbg do
+            local slot = elements.slotbg[i]
+            local diffX = math.abs(slot.x - checkx)
+            local diffY = math.abs(slot.y - checky)
+            if diffX > margin or diffY > margin then
+              proceed = false
+            else
+              proceed = true
+            end
+        end
+
+        local size = event:targetsize(i)
+        local scale = event:targetscale(i)
+
+
+        if proceed then setabilitydetails(ability, exists, pxlefts, pxtops, size, scale) end
       end
       if aw == ah then
         if aw == 60 then
@@ -1051,6 +1122,11 @@ bolt.onrender2d(function (event)
               readuielement(elements.loot, true)
           end
         end
+        if aw == 24 then
+          if event:texturecompare(ax, ay + 12, "\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x33\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x32\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\x31\xff\xff\xff\x33\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x33\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x33\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x00\xff\xff\xff\x00") then
+              readuielement(elements.bankpresets, true)
+          end
+        end
         if aw == 31 then
           if event:texturecompare(ax, ay + 16, "\x68\x5a\x36\xff\x45\x1d\x1c\xff\x45\x1d\x1c\xff\x83\x3b\x31\xff\x64\x2b\x26\xff\x64\x2b\x26\xff\x64\x2b\x26\xff\x65\x2b\x28\xff\x65\x2b\x28\xff\x65\x2b\x28\xff\x64\x2b\x26\xff\x56\x29\x26\xff\x8b\x65\x46\xff\xc6\xa4\x68\xff\xc6\xa4\x68\xff\xc6\xa4\x68\xff\xc6\xa4\x68\xff\xc6\xa4\x68\xff\x8b\x65\x46\xff\x56\x29\x26\xff\x64\x2b\x26\xff\x65\x2b\x28\xff\x65\x2b\x28\xff\x64\x2b\x26\xff\x64\x2b\x26\xff\x65\x2b\x28\xff\x64\x2b\x26\xff\x83\x3b\x31\xff\x45\x1d\x1c\xff\x45\x1d\x1c\xff\x68\x5a\x36\xff") then
               readuielement(elements.central, true)
@@ -1155,16 +1231,9 @@ bolt.onswapbuffers (function (event)
     end
     startcheckframe(t)
   end
-  if (elements.bank.active or elements.central.active or elements.lobby.active) and not elements.loot.active then
+  if (elements.bank.active or elements.central.active or elements.lobby.active or elements.bankpresets.active) and not elements.loot.active then
     return
   else
-
-    miscui = images['gauge-ui'].misc
-    ovlimg = miscui.overloaded
-    auraimg = miscui.aura
-    summimg = miscui.summon
-    poisonimg = miscui.poisonous
-    prayerimg = miscui.prayer
 
     ovlx = bx
     ovly = by
@@ -1176,6 +1245,15 @@ bolt.onswapbuffers (function (event)
     poisony = by
     aurax = poisonx + 30
     auray = by
+
+    -- Ability hilights
+
+      abilities.combust.hilight = buffs.conflagrate.active
+      abilities.combust.hilight = true
+      abilities.sonic.hilight   = buffs.runiccharge.active
+      abilities.conc.hilight    = buffs.runiccharge.active
+      abilities.dbreath.hilight = (buffs.runiccharge.active or buffs.combust.active)
+      hilightabilities()
 
     if buffs.overload.active and buffs.overload.number < (10) then
       ovlimg.surface:drawtoscreen(0, 0, ovlimg.width, ovlimg.height, ovlx * scale, ovly * scale, ovlimg.width * scale, ovlimg.height * scale)
@@ -1196,8 +1274,6 @@ bolt.onswapbuffers (function (event)
     if buffs.aura.active and buffs.aura.number < (60) then
       auraimg.surface:drawtoscreen(0, 0, auraimg.width, auraimg.height, aurax * scale, auray * scale, auraimg.width * scale, auraimg.height * scale)
     end
-
-
 
     if buffs.livingdeath.active or buffs.sanctity.active or buffs.sorrow.active or buffs.ruination.active or buffs.skeletonwarrior.active then
       cbstyle = "necromancy"

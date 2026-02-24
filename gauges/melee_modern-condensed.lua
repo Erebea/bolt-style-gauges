@@ -41,7 +41,7 @@ drawmeleegauge = function ()
   local meteorposy = berserkposy
 
   local gbargeposx = gm - lengstacks.width - 12
-  local gbargeposy = bloodlustposy
+  local gbargeposy = bloodlustposy - 1
 
   local aspectposx = gbargeposx + 1
   local aspectposy = gbargeposy + 24

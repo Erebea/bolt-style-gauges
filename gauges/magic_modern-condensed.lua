@@ -34,26 +34,6 @@ drawmagegauge = function ()
     geimg_key = '0'
   end
 
--- Ability hilights
-  if buffs.conflagrate.active then
-    hilightability(abilities.combust)
-  end
-
-  if buffs.runiccharge.active then
-    hilightability(abilities.sonic)
-    hilightability(abilities.conc)
-    hilightability(abilities.dbreath)
-  end
-
-  if buffs.combust.active then
-    hilightability(abilities.dbreath)
-  end
-
-
-  if buffs.incitefear.active and buffs.incitefear.parensnumber == 5 then
-    hilightability(abilities.tsunami)
-  end
-
 
 -- Use the determined key to get the image
   local geimg = mage['glacial-embrace'][geimg_key]
