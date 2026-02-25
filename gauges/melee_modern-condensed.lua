@@ -11,7 +11,6 @@ drawmeleegauge = function ()
 
   local berserkicon = melee.berserk.icon
   local meteoricon =  melee.meteorstrike.icon
-  local gbargeicon = melee.gbarge.icon
 
   local lengstacks
   if not buffs.primordialice.active then
@@ -40,11 +39,8 @@ drawmeleegauge = function ()
   local meteorposx = berserkposx + 65
   local meteorposy = berserkposy
 
-  local gbargeposx = gm - lengstacks.width - 12
-  local gbargeposy = bloodlustposy - 1
-
-  local aspectposx = gbargeposx + 1
-  local aspectposy = gbargeposy + 24
+  local aspectposx = gm - lengstacks.width - 12
+  local aspectposy = bloodlustposy + 1
 
   local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
   local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
@@ -91,11 +87,6 @@ drawmeleegauge = function ()
 
     numssmall.surface:drawtoscreen(meteordigit1, 0, numssmall.width / 10, numssmall.height, meteorposx + (20 * scale), meteorposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(meteordigit2, 0, numssmall.width / 10, numssmall.height, meteorposx + ((20 + (numssmall.width / 10)) * scale), meteorposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
-  end
-
-  if buffs.gbarge.active then
-    --dotbg.surface:drawtoscreen(0, 0, dotbg.width, dotbg.height, (gbargeposx - 1) * scale, (gbargeposy - 1) * scale, dotbg.width * scale, dotbg.height * scale)
-    gbargeicon.surface:drawtoscreen(0, 0, gbargeicon.width, gbargeicon.height, gbargeposx * scale, gbargeposy, gbargeicon.width * scale, gbargeicon.height * scale)
   end
 
   bloodlustimg.surface:drawtoscreen(0, 0, bloodlustimg.width, bloodlustimg.height, bloodlustposx * scale, bloodlustposy * scale, bloodlustimg.width * scale, bloodlustimg.height * scale)

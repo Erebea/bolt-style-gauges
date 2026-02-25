@@ -194,7 +194,7 @@ end
   end
 
 -- bolg cheatsheet
-  --[[
+ --[[ 
   local pemax
   if buffs.balancebyforce.active then
     pemax = 4
@@ -205,7 +205,7 @@ end
   local riconum = (penum + 7)
   local snapnum = (penum + 2)
   local rapidnum = (penum + 8)
-  local deadshotnum = (penum + 5)
+  local deadshotnum = (penum + 8)
 
   local nothing, rico = numparse(riconum % pemax, numssmall.width / 10)
   local nothing, snap =  numparse(snapnum % pemax, numssmall.width / 10)
