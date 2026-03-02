@@ -58,7 +58,7 @@ drawmeleegauge = function ()
     lengbarbg.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, (lengposx + 5) * scale, (lengposy + lengstacks.height - 5) * scale, lengbarbg.width * scale, lengbarbg.height * scale)
 
     local elapsed = bars.frostblades.max - (buffs.frostblades.number * 1000000)
-    local width = math.floor(barfill(bars.frostblades.max, elapsed, 110) * scale)
+    local width = math.floor(barfill(bars.frostblades.max, elapsed, 106) * scale)
 
     lengbarfill.surface:drawtoscreen(0, 0, width, lengbarfill.height, (lengposx + 7) * scale, (lengposy + lengstacks.height - 5) * scale, width, lengbarfill.height * scale)
     lengbarframe.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, (lengposx + 5) * scale, (lengposy + lengstacks.height - 5) * scale, lengbarbg.width * scale, lengbarbg.height * scale)
