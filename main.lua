@@ -5,7 +5,7 @@ modules = {
   buffs = require("modules.buffs.buffs"),
 }
 -- interface scaling value
-scale = 1
+scale = 1.25
 -- modern or legacy interface, I haven't made legacy assets yet
 intstyle = "modern-condensed"
 -- the width of the gauge
@@ -46,7 +46,7 @@ if savedpos then
   end
 end
 
-cbstyle = "none"
+cbstyle = "melee"
 hidegauge = false
 
 -- drag state for shift+drag repositioning
@@ -163,8 +163,11 @@ elements = {
   slotinput = {},
 }
 
+equipment = {
+  t95lantern = {},
+}
+
 require("hilights.abilities")
-require("hilights.hilights")
 
 for _, model in pairs(models) do
   model.dohighlight = true
@@ -254,12 +257,16 @@ images = {
           [12] = true,
         },
         ['residual-souls'] = {
-          [0] = true,
-          [1] = true,
-          [2] = true,
-          [3] = true,
-          [4] = true,
-          [5] = true,
+          ['0-5'] = true,
+          ['1-5'] = true,
+          ['2-5'] = true,
+          ['3-5'] = true,
+          ['4-5'] = true,
+          ['5-5'] = true,
+          ['0-3'] = true,
+          ['1-3'] = true,
+          ['2-3'] = true,
+          ['3-3'] = true,
         },
       },
       magic = {
@@ -399,6 +406,13 @@ images = {
           ['3'] = true,
           ['4'] = true,
           ['5'] = true,
+          ['6'] = true,
+          ['7'] = true,
+          ['8'] = true,
+          ['9'] = true,
+          ['10'] = true,
+          ['11'] = true,
+          ['12'] = true,
         },
         wen = {
           icon = true,
@@ -507,7 +521,7 @@ bars = {
     gdeathsswiftness = { max = 3.9e+7 },
     shadows = { max = 3.06e+7 },
     spore = { max = 0.9e+7 },
-    sporecd = { max = 6e+7 },
+    sporecd = { max = 3e+7 },
     splitsoul = { max = 1.5e+7 },
     balancebyforce = { max = 3e+7 },
   },
@@ -714,6 +728,17 @@ rendericonlookup1 = {
   [1575] = function (event)
     local x, y, z = event:modelvertexpoint(1, 504):get()
     if x == -144 and y == 0 and z == -156 then return buffs.spore, buffs.sporecd end
+  end,
+
+  [4068] = function (event)
+    local x, y, z = event:modelvertexpoint(1, 1001):get()
+    if x == -18 and y == 82 and z == -11 then
+      name = equipment.t95lantern
+      name.foundoncheckframe = true
+      x, y, _, _ = event:xywh()
+      name.x = x
+      name.y = y
+    end
   end,
 
   [2460] = rendericonlookup1godbookmatch, -- wen

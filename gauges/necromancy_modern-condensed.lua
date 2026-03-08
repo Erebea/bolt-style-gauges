@@ -22,23 +22,22 @@ drawnecrogauge = function ()
   local ssimg = necro.incantations['split-soul'].active
   local ssbar = necro.incantations['split-soul'].ssbar
   local ssbarbg = necro.incantations['split-soul'].ssbarbg
-
-  local soulsimg = necro['residual-souls'][buffs.residualsouls.active and ((buffs.residualsouls.parensnumber ~= nil) and buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0]
+  local soulsimg = necro['residual-souls'][(buffs.residualsouls.active and ((buffs.residualsouls.parensnumber ~= nil) and buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0) .. (equipment.t95lantern.x and "-5" or "-3")]
 
   local dmimg = necro.incantations['invoke-death'][buffs.deathmark.active and 'active' or 'inactive']
 
-  local aspectposx =  gm - 105 + bloat.bloatframe.width + 5
-  local aspectposy =  gv - 10
+  local aspectposx =  gm - (130 * scale)
+  local aspectposy =  gv - (10 * scale)
   local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
   local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
   local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
 
   if buffs.temporalanomaly.active then
-    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx * scale, aspectposy * scale, taimg.width * scale, taimg.height * scale)
+    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx, aspectposy, taimg.width * scale, taimg.height * scale)
   elseif buffs.animatedead.active then
-    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx * scale, aspectposy * scale, adimg.width * scale, adimg.height * scale)
+    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx, aspectposy, adimg.width * scale, adimg.height * scale)
   elseif buffs.darkness.active then
-    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx * scale, aspectposy * scale, dnessimg.width * scale, dnessimg.height * scale)
+    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx, aspectposy, dnessimg.width * scale, dnessimg.height * scale)
   end
 
   dmimg.surface:drawtoscreen(0, 0, dmimg.width, dmimg.height, gm - 105, aspectposy + (18 * scale), dmimg.width * scale, dmimg.height * scale)
@@ -46,18 +45,18 @@ drawnecrogauge = function ()
   local ssicon = necro.incantations['split-soul'].icon
 
 -- quickly configure positions of the popup buffs
-  local ldposx =  gm - 100
-  local ldposy =  (gv - (96 + (numssmall.height / 2))) + 65
+  local ldposx =  gm - (100 * scale)
+  local ldposy =  gv - (35 * scale)
 
-  local ssposx = ldposx + 65
+  local ssposx = ldposx + (65 * scale)
   local ssposy = ldposy
 
 -- ld
 
   if bars.livingdeath.start ~= nil then
 
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ldposx - ( 14 * scale), (ldposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    ldicon.surface:drawtoscreen(0, 0, ldicon.width, ldicon.height, ldposx * scale, ldposy * scale, ldicon.width * scale, ldicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ldposx - ( 14 * scale), ldposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    ldicon.surface:drawtoscreen(0, 0, ldicon.width, ldicon.height, ldposx, ldposy, ldicon.width * scale, ldicon.height * scale)
 
     local timeleft = math.floor((bars.livingdeath.max - (t - bars.livingdeath.start)) / 1000000)
 
@@ -69,8 +68,8 @@ drawnecrogauge = function ()
 
 -- split soul
   if bars.splitsoul.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ssposx - ( 14 * scale), (ssposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    ssicon.surface:drawtoscreen(0, 0, ssicon.width, ssicon.height, ssposx * scale, ssposy, ssicon.width * scale, ssicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ssposx - ( 14 * scale), ssposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    ssicon.surface:drawtoscreen(0, 0, ssicon.width, ssicon.height, ssposx, ssposy, ssicon.width, ssicon.height * scale)
 
     local timeleft = math.floor((bars.splitsoul.max - (t - bars.splitsoul.start)) / 1000000)
     local ssdigit1, ssdigit2 = numparse(timeleft, numssmall.width / 10)

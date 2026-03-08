@@ -15,18 +15,18 @@ drawrangedgauge = function ()
 
   local dspimg
 
-  local aspectposx =  gm - 124
-  local aspectposy =  gv
+  local aspectposx =  gm - (135 * scale)
+  local aspectposy =  gv - (10 * scale)
   local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
   local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
   local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
 
   if buffs.temporalanomaly.active then
-    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx * scale, aspectposy * scale, taimg.width * scale, taimg.height * scale)
+    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx, aspectposy, taimg.width * scale, taimg.height * scale)
   elseif buffs.animatedead.active then
-    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx * scale, aspectposy * scale, adimg.width * scale, adimg.height * scale)
+    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx, aspectposy, adimg.width * scale, adimg.height * scale)
   elseif buffs.darkness.active then
-    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx * scale, aspectposy * scale, dnessimg.width * scale, dnessimg.height * scale)
+    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx, aspectposy, dnessimg.width * scale, dnessimg.height * scale)
   end
 
 -- deathspores
@@ -64,12 +64,13 @@ drawrangedgauge = function ()
   local wenicon = ranged.wen.icon
   local wennums = ranged.wen.digits
   local wennumsa = ranged.wen.digitsa
-  local wenposx =  gm - 160
-  local wenposy =  gv - 26
+  local wenposx =  gm - (160 * scale)
+  local wenposy =  gv - (26 * scale)
 
-  numsbg2.surface:drawtoscreen(0, 0, numsbg2.width, numsbg2.height, wenposx * scale, wenposy * scale, numsbg2.width * scale, numsbg2.height * scale)
+  numsbg2.surface:drawtoscreen(0, 0, numsbg2.width, numsbg2.height, wenposx, wenposy, numsbg2.width * scale, numsbg2.height * scale)
 
 if not buffs.wenactive.active then
+  if not buffs.wenstack.active then buffs.wenstack.parensnumber = 0 end
   local wdigit1, wdigit2 = numparse(buffs.wenstack.parensnumber, wennums.width / 10)
   local wenstacknum
   if buffs.wenstack.number == nil then
@@ -100,23 +101,23 @@ end
   local ssicon = ranged['split-soul'].icon
 
 -- quickly configure positions of the popup buffs
-  local dsposx =  gm - 120
-  local dsposy =  gv - 56
+  local dsposx =  gm - (120 * scale)
+  local dsposy =  gv - (56 * scale)
 
-  local incenposx = dsposx + 70
+  local incenposx = dsposx + (70 * scale)
   local incenposy = dsposy
 
-  local ssposx = incenposx + 70
+  local ssposx = incenposx + (70 * scale)
   local ssposy = incenposy
 
-  local dracoposx = ssposx + 70
+  local dracoposx = ssposx + (70 * scale)
   local dracoposy = ssposy
 
 
 -- ds
   if bars.gdeathsswiftness.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dsposx - ( 14 * scale), (dsposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    gdsicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dsposx * scale, dsposy * scale, gdsicon.width * scale, gdsicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dsposx - ( 14 * scale), dsposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    gdsicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dsposx, dsposy, gdsicon.width * scale, gdsicon.height * scale)
 
     local timeleft = math.floor((bars.gdeathsswiftness.max - (t - bars.gdeathsswiftness.start)) / 1000000)
     local gdsdigit1, gdsdigit2 = numparse(timeleft, numssmall.width / 10)
@@ -125,8 +126,8 @@ end
     numssmall.surface:drawtoscreen(gdsdigit2, 0, numssmall.width / 10, numssmall.height, dsposx + ((20 + (numssmall.width / 10)) * scale), dsposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
   if bars.deathsswiftness.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dsposx - ( 14 * scale), (dsposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    dsicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dsposx * scale, dsposy * scale, gdsicon.width * scale, gdsicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dsposx - ( 14 * scale), dsposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    dsicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dsposx, dsposy, gdsicon.width * scale, gdsicon.height * scale)
 
     local timeleft = math.floor((bars.deathsswiftness.max - (t - bars.deathsswiftness.start)) / 1000000)
     local dsdigit1, dsdigit2 = numparse(timeleft, numssmall.width / 10)
@@ -136,8 +137,8 @@ end
   end
 -- incen
   if buffs.shadows.active then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, incenposx - ( 14 * scale), (incenposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    incenicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, incenposx * scale, incenposy * scale, gdsicon.width * scale, gdsicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, incenposx - ( 14 * scale), incenposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    incenicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, incenposx, incenposy, gdsicon.width * scale, gdsicon.height * scale)
 
     local timeleft = buffs.shadows.number
     local incendigit1, incendigit2 = numparse(timeleft, numssmall.width / 10)
@@ -147,8 +148,8 @@ end
   end
 -- split soul
   if bars.splitsoul.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ssposx - ( 14 * scale), (ssposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    ssicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, ssposx * scale, ssposy, gdsicon.width * scale, gdsicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, ssposx - ( 14 * scale), ssposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    ssicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, ssposx, ssposy, gdsicon.width * scale, gdsicon.height * scale)
 
     local timeleft = math.floor((bars.splitsoul.max - (t - bars.splitsoul.start)) / 1000000)
     local ssdigit1, ssdigit2 = numparse(timeleft, numssmall.width / 10)
@@ -159,8 +160,8 @@ end
 --[[ draco
 
   if buffs.draco.active then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dracoposx - ( 14 * scale), (dracoposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    dracoicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dracoposx * scale, dracoposy, gdsicon.width * scale, gdsicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, dracoposx - ( 14 * scale), dracoposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    dracoicon.surface:drawtoscreen(0, 0, gdsicon.width, gdsicon.height, dracoposx, dracoposy, gdsicon.width * scale, gdsicon.height * scale)
 
     local dracodigit1, dracodigit2 = numparse(buffs.draco.number, numssmall.width / 10)
 

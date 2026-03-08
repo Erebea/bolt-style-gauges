@@ -27,49 +27,49 @@ drawmeleegauge = function ()
 
 -- easily configure positions of major element groups
 
-  local lengposx =  gm - 105
-  local lengposy =  gv - 28
+  local lengposx =  gm - (105 * scale)
+  local lengposy =  gv - (28 * scale)
 
-  local bloodlustposx = lengposx + lengstacks.width + 4
-  local bloodlustposy = gv - 24
+  local bloodlustposx = lengposx + ((lengstacks.width) * scale)
+  local bloodlustposy = lengposy + (4 * scale)
 
-  local berserkposx =  lengposx + 4
-  local berserkposy =  gv - 60
+  local berserkposx =  lengposx + (4 * scale)
+  local berserkposy =  gv - (56 * scale)
 
-  local meteorposx = berserkposx + 65
+  local meteorposx = berserkposx + (65 * scale)
   local meteorposy = berserkposy
 
-  local aspectposx = gm - lengstacks.width - 12
-  local aspectposy = bloodlustposy + 1
+  local aspectposx = bloodlustposx - ((lengstacks.width + 20) * scale)
+  local aspectposy = lengposy + (5 * scale)
 
   local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
   local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
   local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']
 
   if buffs.temporalanomaly.active then
-    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx * scale, aspectposy * scale, taimg.width * scale, taimg.height * scale)
+    taimg.surface:drawtoscreen(0, 0, taimg.width, taimg.height, aspectposx, aspectposy, taimg.width * scale, taimg.height * scale)
   elseif buffs.animatedead.active then
-    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx * scale, aspectposy * scale, adimg.width * scale, adimg.height * scale)
+    adimg.surface:drawtoscreen(0, 0, adimg.width, adimg.height, aspectposx, aspectposy, adimg.width * scale, adimg.height * scale)
   elseif buffs.darkness.active then
-    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx * scale, aspectposy * scale, dnessimg.width * scale, dnessimg.height * scale)
+    dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx, aspectposy, dnessimg.width * scale, dnessimg.height * scale)
   end
 
   if buffs.frostblades.active and buffs.frostblades.number then
-    lengbarbg.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, (lengposx + 5) * scale, (lengposy + lengstacks.height - 5) * scale, lengbarbg.width * scale, lengbarbg.height * scale)
+    lengbarbg.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, lengposx + (5 * scale), lengposy + ((lengstacks.height - 5) * scale), lengbarbg.width * scale, lengbarbg.height * scale)
 
     local elapsed = bars.frostblades.max - (buffs.frostblades.number * 1000000)
     local width = math.floor(barfill(bars.frostblades.max, elapsed, 106) * scale)
 
-    lengbarfill.surface:drawtoscreen(0, 0, width, lengbarfill.height, (lengposx + 7) * scale, (lengposy + lengstacks.height - 5) * scale, width, lengbarfill.height * scale)
-    lengbarframe.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, (lengposx + 5) * scale, (lengposy + lengstacks.height - 5) * scale, lengbarbg.width * scale, lengbarbg.height * scale)
+    lengbarfill.surface:drawtoscreen(0, 0, width, lengbarfill.height, lengposx + (7 * scale), lengposy + ((lengstacks.height - 5) * scale), width, lengbarfill.height * scale)
+    lengbarframe.surface:drawtoscreen(0, 0, lengbarbg.width, lengbarbg.height, lengposx + (5 * scale), lengposy + ((lengstacks.height - 5) * scale), lengbarbg.width * scale, lengbarbg.height * scale)
   end
-  lengstacks.surface:drawtoscreen(0, 0, lengstacks.width, lengstacks.height, lengposx * scale, lengposy * scale, lengstacks.width * scale, lengstacks.height * scale)
+  lengstacks.surface:drawtoscreen(0, 0, lengstacks.width, lengstacks.height, lengposx, lengposy, lengstacks.width * scale, lengstacks.height * scale)
 
 -- temp buffs
 
   if buffs.berserk.active then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, berserkposx - ( 14 * scale), (berserkposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    berserkicon.surface:drawtoscreen(0, 0, berserkicon.width, berserkicon.height, berserkposx * scale, berserkposy, berserkicon.width * scale, berserkicon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, berserkposx - ( 14 * scale), berserkposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    berserkicon.surface:drawtoscreen(0, 0, berserkicon.width, berserkicon.height, berserkposx, berserkposy, berserkicon.width * scale, berserkicon.height * scale)
 
     local timeleft = buffs.berserk.number
     local berserkdigit1, berserkdigit2 = numparse(timeleft, numssmall.width / 10)
@@ -79,8 +79,8 @@ drawmeleegauge = function ()
   end
 
   if bars.meteor.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, meteorposx - ( 14 * scale), (meteorposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    meteoricon.surface:drawtoscreen(0, 0, meteoricon.width, meteoricon.height, meteorposx * scale, meteorposy, meteoricon.width * scale, meteoricon.height * scale)
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, meteorposx - ( 14 * scale), meteorposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    meteoricon.surface:drawtoscreen(0, 0, meteoricon.width, meteoricon.height, meteorposx, meteorposy, meteoricon.width * scale, meteoricon.height * scale)
 
     local timeleft = math.floor((bars.meteor.max - (t - bars.meteor.start)) / 1000000)
     local meteordigit1, meteordigit2 = numparse(timeleft, numssmall.width / 10)
@@ -89,5 +89,5 @@ drawmeleegauge = function ()
     numssmall.surface:drawtoscreen(meteordigit2, 0, numssmall.width / 10, numssmall.height, meteorposx + ((20 + (numssmall.width / 10)) * scale), meteorposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
 
-  bloodlustimg.surface:drawtoscreen(0, 0, bloodlustimg.width, bloodlustimg.height, bloodlustposx * scale, bloodlustposy * scale, bloodlustimg.width * scale, bloodlustimg.height * scale)
+  bloodlustimg.surface:drawtoscreen(0, 0, bloodlustimg.width, bloodlustimg.height, bloodlustposx, bloodlustposy, bloodlustimg.width * scale, bloodlustimg.height * scale)
 end

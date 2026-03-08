@@ -76,13 +76,13 @@ drawmagegauge = function ()
 -- temp buffs
 
   -- quickly configure positions of the popup buffs
-  local sunposx =  gm - 20
-  local sunposy =  (gv - (96 + (numssmall.height / 2))) + 68
+  local sunposx =  gm - (20 * scale)
+  local sunposy =  gv - (35 * scale)
 
-  local tsuposx = sunposx + 65
+  local tsuposx = sunposx + (65 * scale)
   local tsuposy = sunposy
 
-  local fsoaposx = tsuposx + 65
+  local fsoaposx = tsuposx + (65 * scale)
   local fsoaposy = sunposy
 
   -- positions of combust element, exsangiunate element, and incite fear element
@@ -109,7 +109,7 @@ drawmagegauge = function ()
 
   if bars.sunshine.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 14 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    sunicon.surface:drawtoscreen(0, 0, sunicon.width, sunicon.height, sunposx * scale, sunposy, sunicon.width * scale, sunicon.height * scale)
+    sunicon.surface:drawtoscreen(0, 0, sunicon.width, sunicon.height, sunposx, sunposy, sunicon.width * scale, sunicon.height * scale)
 
     local timeleft = math.floor((bars.sunshine.max - (t - bars.sunshine.start)) / 1000000)
     local sundigit1, sundigit2 = numparse(timeleft, numssmall.width / 10)
@@ -119,7 +119,7 @@ drawmagegauge = function ()
   end
   if bars.gsunshine.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 14 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    gsunicon.surface:drawtoscreen(0, 0, sunicon.width, sunicon.height, sunposx * scale, sunposy, sunicon.width * scale, sunicon.height * scale)
+    gsunicon.surface:drawtoscreen(0, 0, sunicon.width, sunicon.height, sunposx, sunposy, sunicon.width * scale, sunicon.height * scale)
 
     local timeleft = math.floor((bars.gsunshine.max - (t - bars.gsunshine.start)) / 1000000)
     local sundigit1, sundigit2 = numparse(timeleft, numssmall.width / 10)
@@ -127,21 +127,11 @@ drawmagegauge = function ()
     numssmall.surface:drawtoscreen(sundigit1, 0, numssmall.width / 10, numssmall.height, sunposx + (20 * scale), sunposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
     numssmall.surface:drawtoscreen(sundigit2, 0, numssmall.width / 10, numssmall.height, sunposx + ((20 + (numssmall.width / 10)) * scale), sunposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
-  if bars.metamorphosis.start ~= nil then
-    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, sunposx - ( 14 * scale), (sunposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    metaicon.surface:drawtoscreen(0, 0, metaicon.width, metaicon.height, sunposx * scale, sunposy, metaicon.width * scale, metaicon.height * scale)
-
-    local timeleft = math.floor((bars.metamorphosis.max - (t - bars.metamorphosis.start)) / 1000000)
-    local metadigit1, metadigit2 = numparse(timeleft, numssmall.width / 10)
-
-    numssmall.surface:drawtoscreen(metadigit1, 0, numssmall.width / 10, numssmall.height, sunposx + (20 * scale), sunposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
-    numssmall.surface:drawtoscreen(metadigit2, 0, numssmall.width / 10, numssmall.height, sunposx + ((20 + (numssmall.width / 10)) * scale), sunposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
-  end
 
 
   if bars.tsunami.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, tsuposx - ( 14 * scale), (tsuposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    tsuicon.surface:drawtoscreen(0, 0, tsuicon.width, tsuicon.height, tsuposx * scale, tsuposy, tsuicon.width * scale, tsuicon.height * scale)
+    tsuicon.surface:drawtoscreen(0, 0, tsuicon.width, tsuicon.height, tsuposx, tsuposy, tsuicon.width * scale, tsuicon.height * scale)
 
     local timeleft = math.floor((bars.tsunami.max - (t - bars.tsunami.start)) / 1000000)
     local tsudigit1, tsudigit2 = numparse(timeleft, numssmall.width / 10)
@@ -152,7 +142,7 @@ drawmagegauge = function ()
 
   if bars.instability.start ~= nil then
     buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, fsoaposx - ( 14 * scale), (fsoaposy - 6) * scale, buffbg.width * scale, buffbg.height * scale)
-    fsoaicon.surface:drawtoscreen(0, 0, fsoaicon.width, fsoaicon.height, fsoaposx * scale, fsoaposy - 4, fsoaicon.width * scale, fsoaicon.height * scale)
+    fsoaicon.surface:drawtoscreen(0, 0, fsoaicon.width, fsoaicon.height, fsoaposx, fsoaposy - 4, fsoaicon.width * scale, fsoaicon.height * scale)
 
     local timeleft = math.floor((bars.instability.max - (t - bars.instability.start)) / 1000000)
     local tsudigit1, tsudigit2 = numparse(timeleft, numssmall.width / 10)
@@ -163,7 +153,7 @@ drawmagegauge = function ()
 
 
 
-  btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, exsangposx * scale, exsangposy * scale, btimg.width * scale, btimg.height * scale)
+  btimg.surface:drawtoscreen(0, 0, btimg.width, btimg.height, exsangposx, exsangposy, btimg.width * scale, btimg.height * scale)
   if bars.exsanguinate.start ~= nil and buffs.exsanguinate.number then
     local btbar = mage['blood-tithe'].btbar
     local elapsed = bars.exsanguinate.max - (buffs.exsanguinate.number * 1000000)
@@ -171,7 +161,7 @@ drawmagegauge = function ()
     btbar.surface:drawtoscreen(0, 0, btbar.width, btbar.height, exsangposx - (1 * scale), exsangposy + (7 * scale), width * scale, 6 * scale)
   end
 
-  geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, inciteposx * scale, inciteposy * scale, geimg.width * scale, geimg.height * scale)
+  geimg.surface:drawtoscreen(0, 0, geimg.width, geimg.height, inciteposx, inciteposy, geimg.width * scale, geimg.height * scale)
 --  gebarbg.surface:drawtoscreen(0, 0, btbarbg.width, btbarbg.height, gm + ((13  + 22)* scale), gv + (18 * scale), gebarbg.width * scale, gebarbg.height * scale)
   if bars.incitefear.start ~= nil and buffs.incitefear.number then
     local gebar = mage['glacial-embrace'].gebar
