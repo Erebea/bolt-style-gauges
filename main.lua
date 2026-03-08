@@ -5,7 +5,7 @@ modules = {
   buffs = require("modules.buffs.buffs"),
 }
 -- interface scaling value
-scale = 1.25
+scale = 1
 -- modern or legacy interface, I haven't made legacy assets yet
 intstyle = "modern-condensed"
 -- the width of the gauge
@@ -46,7 +46,7 @@ if savedpos then
   end
 end
 
-cbstyle = "melee"
+cbstyle = "none"
 hidegauge = false
 
 -- drag state for shift+drag repositioning
