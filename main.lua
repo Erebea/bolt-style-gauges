@@ -5,7 +5,7 @@ modules = {
   buffs = require("modules.buffs.buffs"),
 }
 -- interface scaling value
-scale = 1.3
+scale = 1
 -- modern or legacy interface, I haven't made legacy assets yet
 intstyle = "modern-condensed"
 -- the width of the gauge
