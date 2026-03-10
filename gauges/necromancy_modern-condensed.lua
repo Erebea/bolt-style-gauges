@@ -40,7 +40,7 @@ drawnecrogauge = function ()
     dnessimg.surface:drawtoscreen(0, 0, dnessimg.width, dnessimg.height, aspectposx, aspectposy, dnessimg.width * scale, dnessimg.height * scale)
   end
 
-  dmimg.surface:drawtoscreen(0, 0, dmimg.width, dmimg.height, gm - 105, aspectposy + (18 * scale), dmimg.width * scale, dmimg.height * scale)
+  dmimg.surface:drawtoscreen(0, 0, dmimg.width, dmimg.height, gm - (105 * scale), aspectposy + (18 * scale), dmimg.width * scale, dmimg.height * scale)
 
   local ssicon = necro.incantations['split-soul'].icon
 
