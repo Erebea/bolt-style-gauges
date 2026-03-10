@@ -1,6 +1,6 @@
 {
     "main": "main.lua",
     "name": "RS3 Style Gauges",
-    "version":  "0.82",
+    "version":  "0.83",
     "description":  "Combat style gauges for RS3"
 }
