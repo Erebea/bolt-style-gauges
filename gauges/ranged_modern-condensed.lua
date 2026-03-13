@@ -15,8 +15,8 @@ drawrangedgauge = function ()
 
   local dspimg
 
-  local aspectposx =  gm - (135 * scale)
-  local aspectposy =  gv - (10 * scale)
+  local aspectposx =  gm - (100 * scale)
+  local aspectposy =  gv + (12 * scale)
   local dnessimg = ui.aspects.darkness[buffs.darkness.active and 'active' or 'inactive']
   local taimg = ui.aspects['temporal-anomaly'][(buffs.temporalanomaly.active and 'active') or (models.temporalanomaly.foundoncheckframe and 'ta-activate')]
   local adimg = ui.aspects['animate-dead'][buffs.animatedead.active and 'active']

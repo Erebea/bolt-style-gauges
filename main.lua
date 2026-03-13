@@ -46,7 +46,7 @@ if savedpos then
   end
 end
 
-cbstyle = "none"
+cbstyle = "ranged"
 hidegauge = false
 
 -- drag state for shift+drag repositioning
@@ -1211,7 +1211,7 @@ bolt.onswapbuffers (function (event)
     require("gauges.general_" .. intstyle)
       --drawgeneralgauge()
 
-    if buffs.overload.active and buffs.overload.number < (10) then
+    if buffs.overload.active and buffs.overload.number and buffs.overload.number < (10) then
       ovlimg.surface:drawtoscreen(0, 0, ovlimg.width, ovlimg.height, ovlx * scale, ovly * scale, ovlimg.width * scale, ovlimg.height * scale)
     end
 
@@ -1219,15 +1219,15 @@ bolt.onswapbuffers (function (event)
       prayerimg.surface:drawtoscreen(0, 0, prayerimg.width, prayerimg.height, prayerx * scale, prayery * scale, prayerimg.width * scale, prayerimg.height * scale)
     end
 
-    if buffs.summon.active and buffs.summon.number < (30) then
+    if buffs.summon.active and buffs.summon.number and buffs.summon.number < (30) then
       summimg.surface:drawtoscreen(0, 0, summimg.width, summimg.height, summx * scale, summy * scale, summimg.width * scale, summimg.height * scale)
     end
 
-    if buffs.poisonous.active and buffs.poisonous.number < (10) then
+    if buffs.poisonous.active and buffs.poisonous.number and buffs.poisonous.number < (10) then
       poisonimg.surface:drawtoscreen(0, 0, poisonimg.width, poisonimg.height, poisonx * scale, poisony * scale, poisonimg.width * scale, poisonimg.height * scale)
     end
 
-    if buffs.aura.active and buffs.aura.number < (60) then
+    if buffs.aura.active and buffs.aura.number and buffs.aura.number < (60) then
       auraimg.surface:drawtoscreen(0, 0, auraimg.width, auraimg.height, aurax * scale, auray * scale, auraimg.width * scale, auraimg.height * scale)
     end
 
