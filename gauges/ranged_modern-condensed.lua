@@ -11,7 +11,7 @@ drawrangedgauge = function ()
   local numsbg2 = ranged.blackbg2
   local buffbg = ranged.blackbg
 
-  local bolgstacks = ranged['perfect-equilibrium'][((not buffs.perfectequilibrium.active and '0') or buffs.perfectequilibrium.number) or '0' .. (buffs.balancebyforce.active and "-bbf" or "")]
+  local bolgstacks = ranged['perfect-equilibrium'][((not buffs.perfectequilibrium.active and '0') or buffs.perfectequilibrium.number or 0) .. (buffs.balancebyforce.active and "-bbf" or "")]
 
   local dspimg
 
