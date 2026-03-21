@@ -78,7 +78,11 @@ if not buffs.wenactive.active then
   if buffs.wenstack.number == nil then
     wenstacknum = 0
   else
-    wenstacknum = buffs.wenstack.parensnumber
+    if buffs.wenstack.parensnumber == nil then
+      wenstacknum = 0
+    else
+      wenstacknum = buffs.wenstack.parensnumber
+    end
   end
   if buffs.wenstack.active and wenstacknum >= 10 then
     wenicon.surface:drawtoscreen(0, 0, wenicon.width, wenicon.height, wenposx + (10 * scale), wenposy + ( 6 * scale), wenicon.width * scale, wenicon.height * scale)
