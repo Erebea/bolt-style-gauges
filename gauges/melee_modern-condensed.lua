@@ -23,7 +23,7 @@ drawmeleegauge = function ()
   local lengbarbg = melee.lengs.barbg
   local lengbarfill = melee.lengs.barfill
 
-  local bloodlustimg = melee.bloodlust[((not buffs.bloodlust.active and '0') or buffs.bloodlust.number) .. (buffs.berserk.active and "-b" or "")]
+  local bloodlustimg = melee.bloodlust[((not buffs.bloodlust.active and '0') or (buffs.bloodlust.number or 0)) .. (buffs.berserk.active and "-b" or "")]
 
 -- easily configure positions of major element groups
 
