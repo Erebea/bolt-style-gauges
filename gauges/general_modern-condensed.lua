@@ -10,30 +10,43 @@ drawgeneralgauge = function ()
   local pray = bars.prayer
   local summ = bars.summoning
 
-  local hpposx = math.floor(gamewidth * 0.375)
-  local hpposy = math.floor(gameheight * 0.62)
-  local adposx = hpposx + bg.width + 25
+  local hpposx = math.floor(gamewidth * 0.32)
+  local hpposy = math.floor(gameheight * 0.58)
+  local adposx = hpposx + bg.width + (25 * scale)
   local adposy = hpposy
   local prayposx = hpposx
-  local prayposy = adposy + bg.height
+  local prayposy = adposy + (bg.height * scale)
   local summposx = hpposx
-  local summposy = prayposy + bg.height
+  local summposy = prayposy + (bg.height * scale)
 
+--[[ -- lp
   bga.surface:drawtoscreen(0, 0, bga.width, bga.height, hpposx, hpposy, bga.width * scale, bga.height * scale)
   local width = math.max(0, math.min(216, 216 * stats.health.fraction))
   hp.surface:drawtoscreen(0, 0, width, hp.height, hpposx + 28, hpposy, width, hp.height * scale)
   hpframe.surface:drawtoscreen(0, 0, hpframe.width, hpframe.height, hpposx, hpposy, hpframe.width * scale, hpframe.height * scale)
+]]--
+  -- adrenaline
 
+-- This is your "True Max"
+-- This is your exact constant, normalized to a 13-digit integer
+local max_adr = 1.0365853658537
+local current_adr = stats.adrenaline.fraction
+
+local adrperc = current_adr
+
+  print(current_adr)
   bga.surface:drawtoscreen(0, 0, bga.width, bga.height, adposx, adposy, bga.width * scale, bga.height * scale)
-  local width = math.max(0, math.min(216, 216 * stats.adrenaline.fraction))
+  local width = math.max(0, math.min(216, 216 * (adrperc / 100)))
   ad.surface:drawtoscreen(0, 0, width, ad.height, adposx + 28, adposy, width, ad.height * scale)
   adframe.surface:drawtoscreen(0, 0, hpframe.width, hpframe.height, adposx, adposy, hpframe.width * scale, hpframe.height * scale)
 --[[
+  -- prayer
   bg.surface:drawtoscreen(0, 0, bg.width, bg.height, prayposx, prayposy, bg.width * scale, bg.height * scale)
   local width = math.max(0, math.min(216, 216 * stats.prayer.fraction))
   pray.surface:drawtoscreen(0, 0, width, pray.height, prayposx + 3, prayposy, width, pray.height * scale)
   frame.surface:drawtoscreen(0, 0, frame.width, frame.height, prayposx, prayposy, frame.width * scale, frame.height * scale)
 
+  -- summoning
   bg.surface:drawtoscreen(0, 0, bg.width, bg.height, summposx, summposy, bg.width * scale, bg.height * scale)
   local width = math.max(0, math.min(216, 216 * stats.summoning.fraction))
   summ.surface:drawtoscreen(0, 0, width, summ.height, summposx + 3, summposy, width, summ.height * scale)

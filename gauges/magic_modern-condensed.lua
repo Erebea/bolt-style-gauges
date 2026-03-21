@@ -45,7 +45,7 @@ drawmagegauge = function ()
   ask = (buffs.exsanguinate.number == 20 and 'exsanguinate2') or (buffs.incitefear.number == 20 and 'incite-fear2') or (ask or 'no-spell')
   local asimg = mage['active-spell'][ask]
 
-  local ceimg = mage['corruption-essence'][((not buffs.corruptionessence.active and '0') or ((buffs.corruptionessence.parensnumber or 0) < 1 and '0') or ((buffs.corruptionessence.parensnumber or 0) < 25 and '1') or ((buffs.corruptionessence.parensnumber or 0) < 50 and '2') or '3') .. (not buffs.soulfire.active and "-ready" or "")]
+  local ceimg = mage['corruption-essence'][((not buffs.corruptionessence.active and '0') or ((buffs.corruptionessence.parensnumber or 0) < 1 and '0') or ((buffs.corruptionessence.parensnumber or 0) < 10 and '1') or ((buffs.corruptionessence.parensnumber or 0) < 25 and '2') or '3') .. (not buffs.soulfire.active and "-ready" or "")]
   local cebarframe = mage['corruption-essence'].cebarframe
   local cebarbg = mage['corruption-essence'].cebarbg
 

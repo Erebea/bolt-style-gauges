@@ -46,7 +46,7 @@ if savedpos then
   end
 end
 
-cbstyle = "ranged"
+cbstyle = "none"
 hidegauge = false
 
 -- drag state for shift+drag repositioning
@@ -161,6 +161,7 @@ elements = {
   bankpresets = {},
   slotbg = {},
   slotinput = {},
+  ammoslot = {},
 }
 
 equipment = {
@@ -913,9 +914,11 @@ bolt.onrender2d(function (event)
   local vertexcount = event:vertexcount()
   local verticesperimage = event:verticesperimage()
   for i = 1, vertexcount, verticesperimage do
+    uiscale = event:targetscale(i)
     local ax, ay, aw, ah, _, _ = event:vertexatlasdetails(i)
     if checkframe then
       local pxleft, pxtop = event:vertexxy(i + 2)
+      local pxlefts, pxtops = event:vertexscaledxy(i + 2)
 
       -- helper that calls tryreadbuffdetails with relevant upvalues for this specific image
       -- expectbuff is true if this is expected to be a buff (green), false if debuff (red)
@@ -924,7 +927,7 @@ bolt.onrender2d(function (event)
         if valid and isbuff == expectbuff then setbuffdetails(buff, number, parensnumber) end
       end
       local readuielement = function (element, exists)
-        setuidetails(element, exists, pxleft, pxtop)
+        setuidetails(element, exists, pxlefts, pxtops)
       end
       if aw == ah then
         if aw == 60 then
@@ -1049,7 +1052,10 @@ bolt.onrender2d(function (event)
         end
         if aw == 32 then
           if event:texturecompare(ax, ay + 12, "\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x0b\x83\x72\x66\x54\x8c\x79\x6d\xff\x81\x5b\x43\xb4\x56\x3c\x2b\x26\x00\x00\x01\x00\x00\x00\x01\x04\x00\x00\x01\x00\x00\x00\x01\x08\x00\x00\x01\x4f\x63\x43\x22\xe5\xb7\x82\x42\xff\x7e\x54\x29\xff\x6a\x39\x19\xfd\x3b\x1f\x0c\xa3\x00\x00\x01\x38\x00\x00\x01\x0c\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00") then
-                readbuff(buffs.draco, true)  
+                readbuff(buffs.draco, true)
+          elseif event:texturecompare(ax, ay + 16, "\x00\x00\x01\x08\x00\x00\x01\x0c\x2b\x25\x21\x2e\x7b\x75\x71\x75\x80\x7a\x76\x7a\x6e\x68\x64\x7b\x68\x62\x5e\x6d\x00\x00\x01\x16\x00\x00\x01\x0f\x00\x00\x01\x0b\x00\x00\x01\x0a\x00\x00\x01\x0b\x16\x10\x0c\x1b\x43\x3d\x39\x41\x5b\x55\x51\x5b\x6b\x65\x61\x79\x33\x2d\x29\x45\x00\x00\x01\x13\x00\x00\x01\x0e\x00\x00\x01\x0b\x00\x00\x01\x08\x00\x00\x01\x04\x00\x00\x01\x01\x00\x00\x01\x01\x00\x00\x01\x04\x00\x00\x01\x08\x20\x1a\x16\x1d\x68\x62\x5e\x62\x83\x7d\x79\x7c\x83\x7d\x79\x7b\x5b\x55\x51\x72\x0a\x05\x01\x11") then
+              if elements.ammoslot.x then break end
+                readuielement(elements.ammoslot, true)
           end
         end
         if aw == 38 then
@@ -1105,7 +1111,7 @@ bolt.onrender2d(function (event)
         if bar then
           local x2, _ = event:vertexxy(i)
           local x1, _ = event:vertexxy(i + 2)
-          bar.fraction = (x2 - (x1 + 1)) / 82.0
+          bar.fraction = (x2 - (x1 + 1)) / (86.0 * uiscale)
         end
       end
     end
