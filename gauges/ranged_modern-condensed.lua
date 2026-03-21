@@ -182,7 +182,7 @@ end
 
   local nothing, bolgnum = numparse(penum, nums.width / 10)
 
-  if bars.balancebyforce.start ~= nil and (buffs.balancebyforce and (buffs.balancebyforce.number or 0) > 0) then
+  if bars.balancebyforce.start ~= nil and (buffs.balancebyforce.active and (buffs.balancebyforce.number or 0) > 0) then
     local bbfbarbg = ranged['perfect-equilibrium'].barbg
     local bbfbar = ranged['perfect-equilibrium'].bar
     local elapsed = t - bars.balancebyforce.start
