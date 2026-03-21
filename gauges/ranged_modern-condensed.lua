@@ -11,7 +11,9 @@ drawrangedgauge = function ()
   local numsbg2 = ranged.blackbg2
   local buffbg = ranged.blackbg
 
-  local bolgstacks = ranged['perfect-equilibrium'][((not buffs.perfectequilibrium.active and '0') or buffs.perfectequilibrium.number or '0') .. (buffs.balancebyforce.active and "-bbf" or "")]
+  local bbf = buffs.balancebyforce
+  local bbf_suffix = (bbf and (bbf.number or 0) > 0) and "-bbf" or ""
+  local bolgstacks = ranged['perfect-equilibrium'][((not buffs.perfectequilibrium.active and '0') or buffs.perfectequilibrium.number or '0') .. bbf_suffix]
 
   local dspimg
 
@@ -180,7 +182,7 @@ end
 
   local nothing, bolgnum = numparse(penum, nums.width / 10)
 
-  if bars.balancebyforce.start ~= nil then
+  if bars.balancebyforce.start ~= nil and (buffs.balancebyforce and (buffs.balancebyforce.number or 0) > 0) then
     local bbfbarbg = ranged['perfect-equilibrium'].barbg
     local bbfbar = ranged['perfect-equilibrium'].bar
     local elapsed = t - bars.balancebyforce.start
@@ -192,6 +194,12 @@ end
   else
     numsbg.surface:drawtoscreen(0, 0, numsbg.width, numsbg.height, gm - ((105 - bolgstacks.width - 5 - 1 + (nums.width / 25)) * scale), gv - ((32 - bolgstacks.height + (bolgstacks.height /2) + nums.height - 5) * scale), numsbg.width * scale, numsbg.height * scale)
     nums.surface:drawtoscreen(bolgnum, 0, nums.width / 10, nums.height, gm - ((105 - bolgstacks.width - 5) * scale), gv - ((38 - bolgstacks.height + (bolgstacks.height /2) ) * scale), (nums.width) / 10 * scale, (nums.height) * scale)
+  end
+
+  --[[if elements.ammoslot.x then
+    nums = images['gauge-ui'].misc.hilight
+    nums.surface:drawtoscreen(0, 0, nums.width, nums.height, elements.ammoslot.x, elements.ammoslot.y, nums.width * scale, nums.height * scale)
+    local ammo
   end
 
 -- bolg cheatsheet
