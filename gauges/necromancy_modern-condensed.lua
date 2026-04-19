@@ -19,10 +19,13 @@ drawnecrogauge = function ()
 
   local bloat = necro.bloat
 
+  local deicon = necro.deathessence.icon
+
   local ssimg = necro.incantations['split-soul'].active
   local ssbar = necro.incantations['split-soul'].ssbar
   local ssbarbg = necro.incantations['split-soul'].ssbarbg
-  local soulsimg = necro['residual-souls'][(buffs.residualsouls.active and ((buffs.residualsouls.parensnumber ~= nil) and buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0) .. (equipment.t95lantern.x and "-5" or "-3")]
+  
+  local soulsimg = necro['residual-souls'][(buffs.residualsouls.active and ((buffs.residualsouls.parensnumber ~= nil) and buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0) .. (equipment.t95lantern.isfound and "-5" or "-3")]
 
   local dmimg = necro.incantations['invoke-death'][buffs.deathmark.active and 'active' or 'inactive']
 
@@ -45,11 +48,14 @@ drawnecrogauge = function ()
   local ssicon = necro.incantations['split-soul'].icon
 
 -- quickly configure positions of the popup buffs
-  local ldposx =  gm - (100 * scale)
-  local ldposy =  gv - (35 * scale)
+  local ldposx =  gm - (130 * scale)
+  local ldposy =  gv - (38 * scale)
 
   local ssposx = ldposx + (65 * scale)
   local ssposy = ldposy
+
+  local deposx = ssposx + (65 * scale)
+  local deposy = ldposy
 
 -- ld
 
@@ -78,7 +84,19 @@ drawnecrogauge = function ()
     numssmall.surface:drawtoscreen(ssdigit2, 0, numssmall.width / 10, numssmall.height, ssposx + ((20 + (numssmall.width / 10)) * scale), ssposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
   end
 
+-- death essence
+  if bars.deathessence.start ~= nil then
+    buffbg.surface:drawtoscreen(0, 0, buffbg.width, buffbg.height, deposx - ( 14 * scale), deposy - (6 * scale), buffbg.width * scale, buffbg.height * scale)
+    deicon.surface:drawtoscreen(0, 0, ssicon.width, ssicon.height, deposx, deposy, ssicon.width, ssicon.height * scale)
+
+    local timeleft = math.floor((bars.deathessence.max - (t - bars.deathessence.start)) / 1000000)
+    local dedigit1, dedigit2 = numparse(timeleft, numssmall.width / 10)
+
+    numssmall.surface:drawtoscreen(dedigit1, 0, numssmall.width / 10, numssmall.height, deposx + (20 * scale), deposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
+    numssmall.surface:drawtoscreen(dedigit2, 0, numssmall.width / 10, numssmall.height, deposx + ((20 + (numssmall.width / 10)) * scale), deposy + (6 * scale), (numssmall.width) / 10 * scale, (numssmall.height) * scale)
+  end
   
+
   local ticker = images.interface.modern.ticker
   local tickerx = 0
   local bloatwidth

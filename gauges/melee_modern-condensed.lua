@@ -13,7 +13,7 @@ drawmeleegauge = function ()
   local meteoricon =  melee.meteorstrike.icon
 
   local lengstacks
-  if not buffs.primordialice.number then
+  if not buffs.primordialice.active or not buffs.primordialice.number then
     lengstacks = melee.lengs['0']
   else
     num = tostring(buffs.primordialice.number)
