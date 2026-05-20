@@ -25,7 +25,7 @@ drawnecrogauge = function ()
   local ssbar = necro.incantations['split-soul'].ssbar
   local ssbarbg = necro.incantations['split-soul'].ssbarbg
 
-  local soulsimg = necro['residual-souls'][(buffs.residualsouls.active and (buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0) .. (equipment.t95lantern.isfound and "-5" or "-3")]
+  local soulsimg = necro['residual-souls'][buffs.residualsouls.active and (buffs.residualsouls.parensnumber or buffs.residualsouls.number) or 0]
 
   local dmimg = necro.incantations['invoke-death'][buffs.deathmark.active and 'active' or 'inactive']
 
